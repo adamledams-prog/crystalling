@@ -232,16 +232,15 @@ function renderLorusGrid() {
 
     const runReveal = () => {
       if (isMegaAnimPlaying()) return;
+      const hubFelt = document.querySelector(".hub-felt");
+      if (!hubFelt) return;
+
       playMegaCharReveal({
         id: ch.id,
         name: ch.name,
-        imgEl: img,
-        sheetEl,
+        hubFelt,
+        onCloseLorus: closeLorusPanel,
         anim: ch.anim || "cosmic",
-        spritesheet: ch.spritesheet,
-        spriteFrames: ch.spriteFrames,
-        spriteSize: ch.spriteSize,
-        thumbSrc,
         fullSrc: ch.src,
         special: ch.special,
       });

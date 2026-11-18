@@ -1,15 +1,6 @@
 const GOLD = "#e8c547";
-const PURPLE = "#b57edc";
-const CREAM = "#f4f0e6";
 
-const PHASE_MS = {
-  charge: 320,
-  launch: 720,
-  hero: 1650,
-  outro: 780,
-};
-
-const COLORS = [GOLD, PURPLE, "#ffd966", "#9b6fd4", CREAM];
+const COLORS = [GOLD, "#b57edc", "#ffd966", "#9b6fd4", "#f4f0e6"];
 
 function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -19,8 +10,27 @@ function wait(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-function rectCenter(rect) {
-  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+function getHubCenter(hubFelt) {
+  const r = hubFelt.getBoundingClientRect();
+  return { x: r.left + r.width / 2, y: r.top + r.height * 0.48 };
+}
+
+function getStageEls() {
+  const stage = document.getElementById("hub-arena-stage");
+  if (!stage) return null;
+  return {
+    stage,
+    hero: stage.querySelector(".lorus-mega-hero"),
+    heroImg: stage.querySelector(".lorus-mega-img"),
+    spriteEl: stage.querySelector(".lorus-mega-spr"),
+    heroName: stage.querySelector(".lorus-mega-name"),
+    canvas: stage.querySelector(".lorus-mega-canvas"),
+    flash: stage.querySelector(".lorus-mega-flash"),
+    sunburst: stage.querySelector(".lorus-mega-sunburst"),
+    badge: document.getElementById("lorus-mega-badge"),
+    drone: document.getElementById("lorus-mega-drone"),
+    thumbsFx: document.getElementById("hub-thumbs-fx"),
+  };
 }
 
 class ParticleField {
@@ -30,7 +40,6 @@ class ParticleField {
     this.particles = [];
     this.running = false;
     this.raf = 0;
-    this.mode = "burst";
     this.cx = 0;
     this.cy = 0;
     this.t = 0;
@@ -50,7 +59,7 @@ class ParticleField {
     this.cy = r.height / 2;
   }
 
-  burst(count = 70) {
+  burst(count = 50) {
     for (let i = 0; i < count; i++) {
       const a = (Math.PI * 2 * i) / count + Math.random() * 0.35;
       const sp = 2.5 + Math.random() * 7;
@@ -60,48 +69,9 @@ class ParticleField {
         vx: Math.cos(a) * sp,
         vy: Math.sin(a) * sp,
         life: 1,
-        decay: 0.008 + Math.random() * 0.012,
+        decay: 0.01 + Math.random() * 0.012,
         size: 2 + Math.random() * 4,
         color: COLORS[(Math.random() * COLORS.length) | 0],
-        spin: Math.random() * 0.2,
-      });
-    }
-  }
-
-  orbit(count = 36) {
-    for (let i = 0; i < count; i++) {
-      const a = (Math.PI * 2 * i) / count;
-      const dist = 55 + Math.random() * 45;
-      this.particles.push({
-        x: this.cx + Math.cos(a) * dist,
-        y: this.cy + Math.sin(a) * dist,
-        vx: 0,
-        vy: 0,
-        life: 1,
-        decay: 0.004,
-        size: 1.5 + Math.random() * 2.5,
-        color: COLORS[i % 2 === 0 ? 0 : 1],
-        orbit: true,
-        angle: a,
-        dist,
-        speed: 0.04 + Math.random() * 0.03,
-      });
-    }
-    this.mode = "orbit";
-  }
-
-  sparkles(count = 24) {
-    for (let i = 0; i < count; i++) {
-      this.particles.push({
-        x: this.cx + (Math.random() - 0.5) * 140,
-        y: this.cy + (Math.random() - 0.5) * 160,
-        vx: (Math.random() - 0.5) * 0.6,
-        vy: -0.3 - Math.random() * 1.2,
-        life: 1,
-        decay: 0.006,
-        size: 1 + Math.random() * 2,
-        color: GOLD,
-        sparkle: true,
       });
     }
   }
@@ -116,16 +86,10 @@ class ParticleField {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       for (let i = this.particles.length - 1; i >= 0; i--) {
         const p = this.particles[i];
-        if (p.orbit) {
-          p.angle += p.speed;
-          p.x = this.cx + Math.cos(p.angle) * p.dist;
-          p.y = this.cy + Math.sin(p.angle) * p.dist * 0.75;
-        } else {
-          p.x += p.vx;
-          p.y += p.vy;
-          p.vy += p.sparkle ? 0.02 : 0.06;
-          p.vx *= 0.992;
-        }
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.06;
+        p.vx *= 0.992;
         p.life -= p.decay;
         if (p.life <= 0) {
           this.particles.splice(i, 1);
@@ -134,16 +98,8 @@ class ParticleField {
         this.ctx.globalAlpha = Math.min(1, p.life);
         this.ctx.fillStyle = p.color;
         this.ctx.beginPath();
-        if (p.sparkle && this.t % 6 < 3) {
-          this.ctx.moveTo(p.x, p.y - p.size * 2);
-          this.ctx.lineTo(p.x, p.y + p.size * 2);
-          this.ctx.lineWidth = 1.2;
-          this.ctx.strokeStyle = p.color;
-          this.ctx.stroke();
-        } else {
-          this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-          this.ctx.fill();
-        }
+        this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        this.ctx.fill();
       }
       this.ctx.globalAlpha = 1;
       if (this.particles.length > 0) this.raf = requestAnimationFrame(tick);
@@ -162,129 +118,236 @@ class ParticleField {
 
 let playing = false;
 
-export async function playMegaCharReveal({ name, imgEl, sheetEl, anim = "cosmic" }) {
-  if (playing) return;
-  playing = true;
+function resetDrone(drone) {
+  if (!drone) return;
+  drone.hidden = true;
+  drone.classList.remove("lorus-mega-drone--orbit", "lorus-mega-drone--throw");
+  drone.style.cssText = "";
+  drone.getAnimations().forEach((a) => a.cancel());
+}
 
-  const stage = document.getElementById("lorus-mega-stage");
-  const hero = stage?.querySelector(".lorus-mega-hero");
-  const heroImg = stage?.querySelector(".lorus-mega-img");
-  const heroName = stage?.querySelector(".lorus-mega-name");
-  const canvas = stage?.querySelector(".lorus-mega-canvas");
-  const flash = stage?.querySelector(".lorus-mega-flash");
-  const sunburst = stage?.querySelector(".lorus-mega-sunburst");
-  const badge = document.getElementById("lorus-mega-badge");
-  const card = imgEl?.closest(".lorus-card");
-  const isBrawl = anim === "brawl";
-
-  if (!stage || !hero || !heroImg || !canvas || !imgEl || !sheetEl) {
-    playing = false;
-    return;
+function clearPixelSprite(heroImg, spriteEl) {
+  if (spriteEl) {
+    spriteEl.hidden = true;
+    spriteEl.classList.remove("lorus-mega-spr--run");
+    spriteEl.style.backgroundImage = "";
   }
+  if (heroImg) heroImg.hidden = false;
+}
 
-  const reduced = prefersReducedMotion();
-
-  stage.hidden = false;
-  stage.classList.add("lorus-mega--active");
-  if (isBrawl) stage.classList.add("lorus-mega--brawl");
-  card?.classList.add("lorus-card--charging");
-  sheetEl.classList.add("lorus-sheet--mega");
-  if (isBrawl) sheetEl.classList.add("lorus-sheet--brawl");
-
-  const field = new ParticleField(canvas);
-  const onResize = () => field.resize();
-  field.resize();
-  window.addEventListener("resize", onResize);
-
-  heroImg.src = imgEl.src;
-  heroImg.alt = imgEl.alt;
-  heroName.textContent = name || "";
-  if (badge) {
-    if (isBrawl) {
-      badge.hidden = false;
-      badge.textContent = "BRAWLER !";
-    } else {
-      badge.hidden = true;
-    }
-  }
-
-  const sheetRect = sheetEl.getBoundingClientRect();
-  const start = imgEl.getBoundingClientRect();
-  const startC = rectCenter(start);
-  const endC = { x: sheetRect.left + sheetRect.width / 2, y: sheetRect.top + sheetRect.height * 0.46 };
-
-  const setHeroAt = (cx, cy, scale) => {
-    hero.style.left = `${cx}px`;
-    hero.style.top = `${cy}px`;
-    hero.style.setProperty("--hero-scale", String(scale));
-  };
-
-  setHeroAt(startC.x, startC.y, 0.35);
-  hero.className = "lorus-mega-hero lorus-mega-hero--launch";
-
-  if (reduced) {
-    setHeroAt(endC.x, endC.y, 1);
-    hero.classList.add("lorus-mega-hero--show");
-    await wait(600);
-    stage.classList.remove("lorus-mega--active");
-    stage.hidden = true;
-    card?.classList.remove("lorus-card--charging");
-    sheetEl.classList.remove("lorus-sheet--mega");
-    window.removeEventListener("resize", onResize);
-    playing = false;
-    return;
-  }
-
-  await wait(PHASE_MS.charge);
-  card?.classList.remove("lorus-card--charging");
-  card?.classList.add("lorus-card--fired");
-
-  setHeroAt(endC.x, endC.y, isBrawl ? 0.15 : 1);
-  hero.className = isBrawl
-    ? "lorus-mega-hero lorus-mega-hero--brawl-drop"
-    : "lorus-mega-hero lorus-mega-hero--show";
-
-  if (isBrawl) {
-    sunburst?.classList.add("lorus-mega-sunburst--on");
-    await wait(60);
-    setHeroAt(endC.x, endC.y, 1);
-    hero.className = "lorus-mega-hero lorus-mega-hero--brawl-show";
-    field.burst(55);
-  } else {
-    field.burst(85);
-  }
-  field.start();
-  flash?.classList.add("lorus-mega-flash--on");
-
-  await wait(280);
-  flash?.classList.remove("lorus-mega-flash--on");
-  field.orbit(42);
-  field.start();
-
-  await wait(PHASE_MS.launch);
-  field.sparkles(30);
-  field.start();
-  hero.classList.add(isBrawl ? "lorus-mega-hero--brawl-idle" : "lorus-mega-hero--pulse");
-
-  await wait(PHASE_MS.hero);
-  hero.classList.add("lorus-mega-hero--outro");
-
-  await wait(420);
-  setHeroAt(startC.x, startC.y, 0.4);
-  hero.className = "lorus-mega-hero lorus-mega-hero--return";
-
-  await wait(PHASE_MS.outro);
-  field.stop();
+function hideStage(els) {
+  const { stage, hero, heroImg, spriteEl, drone, sunburst, badge, thumbsFx, flash } = els;
   stage.classList.remove("lorus-mega--active", "lorus-mega--brawl");
   stage.hidden = true;
   sunburst?.classList.remove("lorus-mega-sunburst--on");
   if (badge) badge.hidden = true;
-  hero.className = "lorus-mega-hero";
-  heroImg.removeAttribute("src");
-  card?.classList.remove("lorus-card--fired");
-  sheetEl.classList.remove("lorus-sheet--mega", "lorus-sheet--brawl");
+  if (thumbsFx) thumbsFx.hidden = true;
+  flash?.classList.remove("lorus-mega-flash--on", "lorus-mega-flash--solaris");
+  resetDrone(drone);
+  if (hero) hero.className = "lorus-mega-hero";
+  clearPixelSprite(heroImg, spriteEl);
+  heroImg?.removeAttribute("src");
+}
+
+function showHubCharacter({ src, name, extraClass = "" }) {
+  const stand = document.getElementById("hub-arena-stand");
+  const img = document.getElementById("hub-arena-char");
+  const title = document.getElementById("hub-title");
+  if (!stand || !img) return;
+
+  img.src = src;
+  img.alt = name || "";
+  img.className = `hub-arena-char ${extraClass}`.trim();
+  stand.hidden = false;
+  stand.classList.remove("hidden");
+  title?.classList.add("hub-title--behind");
+}
+
+async function playSolarisDroneThrow({ hero, heroImg, spriteEl, drone, endC, flash, field, fullSrc }) {
+  clearPixelSprite(heroImg, spriteEl);
+  heroImg.src = fullSrc || "./images/persos/solaris-vaalor.png";
+  heroImg.hidden = false;
+  hero.classList.add("lorus-mega-hero--solaris-windup");
+
+  const leftX = endC.x - 78;
+  const leftY = endC.y - 8;
+  const handX = endC.x + 32;
+  const handY = endC.y - 22;
+  const screenX = window.innerWidth / 2;
+  const screenY = window.innerHeight * 0.42;
+
+  drone.hidden = false;
+  drone.style.left = `${leftX}px`;
+  drone.style.top = `${leftY}px`;
+  drone.classList.add("lorus-mega-drone--orbit");
+
+  await wait(520);
+  drone.classList.remove("lorus-mega-drone--orbit");
+
+  const grab = drone.animate(
+    [
+      { left: `${leftX}px`, top: `${leftY}px`, transform: "translate(-50%, -50%) scale(1)" },
+      { left: `${handX}px`, top: `${handY}px`, transform: "translate(-50%, -50%) scale(1.15)" },
+    ],
+    { duration: 420, easing: "cubic-bezier(0.33, 1.15, 0.48, 1)", fill: "forwards" }
+  );
+  await grab.finished;
+
+  hero.classList.remove("lorus-mega-hero--solaris-windup");
+  hero.classList.add("lorus-mega-hero--solaris-throw");
+
+  field.burst(40);
+  field.start();
+
+  const launch = drone.animate(
+    [
+      {
+        left: `${handX}px`,
+        top: `${handY}px`,
+        transform: "translate(-50%, -50%) scale(1.1)",
+        filter: "drop-shadow(0 0 8px rgba(232,197,71,0.8))",
+      },
+      {
+        left: `${screenX}px`,
+        top: `${screenY}px`,
+        transform: "translate(-50%, -50%) scale(5.5)",
+        filter: "drop-shadow(0 0 28px rgba(181,126,220,0.95))",
+      },
+    ],
+    { duration: 780, easing: "cubic-bezier(0.15, 0.85, 0.25, 1)", fill: "forwards" }
+  );
+
+  await wait(320);
+  flash?.classList.add("lorus-mega-flash--on", "lorus-mega-flash--solaris");
+  await launch.finished;
+  await wait(180);
+  flash?.classList.remove("lorus-mega-flash--on", "lorus-mega-flash--solaris");
+
+  const fade = drone.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: "forwards" });
+  await fade.finished;
+  resetDrone(drone);
+  hero.classList.remove("lorus-mega-hero--solaris-throw");
+}
+
+async function playSolarisOnHub({ hubFelt, fullSrc, name }) {
+  const els = getStageEls();
+  if (!els?.hero || !els.heroImg || !els.canvas || !els.drone || !hubFelt) return;
+
+  const endC = getHubCenter(hubFelt);
+  els.stage.hidden = false;
+  els.stage.classList.add("lorus-mega--active");
+  if (els.heroName) els.heroName.textContent = name || "";
+
+  els.hero.style.left = `${endC.x}px`;
+  els.hero.style.top = `${endC.y}px`;
+  els.hero.style.setProperty("--hero-scale", "1");
+  els.hero.className = "lorus-mega-hero lorus-mega-hero--show";
+
+  const field = new ParticleField(els.canvas);
+  const onResize = () => field.resize();
+  field.resize();
+  window.addEventListener("resize", onResize);
+
+  await playSolarisDroneThrow({
+    hero: els.hero,
+    heroImg: els.heroImg,
+    spriteEl: els.spriteEl,
+    drone: els.drone,
+    endC,
+    flash: els.flash,
+    field,
+    fullSrc,
+  });
+
+  field.stop();
   window.removeEventListener("resize", onResize);
-  playing = false;
+  hideStage(els);
+  showHubCharacter({ src: fullSrc || "./images/persos/solaris-vaalor.png", name });
+}
+
+async function playReginaldThumbsOnHub({ hubFelt, fullSrc, name }) {
+  const els = getStageEls();
+  if (!els?.hero || !els.heroImg || !hubFelt) return;
+
+  const endC = getHubCenter(hubFelt);
+  els.stage.hidden = false;
+  els.stage.classList.add("lorus-mega--active", "lorus-mega--brawl");
+  els.sunburst?.classList.add("lorus-mega-sunburst--on");
+
+  els.heroImg.src = fullSrc || "./images/persos/reginald-roi.png";
+  els.heroImg.hidden = false;
+  clearPixelSprite(els.heroImg, els.spriteEl);
+  if (els.heroName) els.heroName.textContent = name || "";
+
+  els.hero.style.left = `${endC.x}px`;
+  els.hero.style.top = `${endC.y}px`;
+  els.hero.style.setProperty("--hero-scale", "0.6");
+  els.hero.className = "lorus-mega-hero lorus-mega-hero--brawl-drop";
+
+  await wait(50);
+  els.hero.style.setProperty("--hero-scale", "1");
+  els.hero.className = "lorus-mega-hero lorus-mega-hero--brawl-show";
+
+  await wait(380);
+  els.hero.classList.add("lorus-mega-hero--reginald-thumbs");
+  if (els.thumbsFx) {
+    els.thumbsFx.hidden = false;
+    els.thumbsFx.style.left = `${endC.x + 42}px`;
+    els.thumbsFx.style.top = `${endC.y - 55}px`;
+    els.thumbsFx.classList.add("hub-thumbs-fx--pop");
+  }
+
+  await wait(1200);
+  if (els.thumbsFx) {
+    els.thumbsFx.classList.remove("hub-thumbs-fx--pop");
+    els.thumbsFx.hidden = true;
+  }
+  els.sunburst?.classList.remove("lorus-mega-sunburst--on");
+  hideStage(els);
+  showHubCharacter({
+    src: fullSrc || "./images/persos/reginald-roi.png",
+    name,
+    extraClass: "hub-arena-char--thumbs",
+  });
+}
+
+export async function playMegaCharReveal({
+  id,
+  name,
+  hubFelt,
+  onCloseLorus,
+  anim = "cosmic",
+  fullSrc,
+  special,
+}) {
+  if (playing) return;
+  if (!hubFelt) hubFelt = document.querySelector(".hub-felt");
+  if (!hubFelt) return;
+
+  onCloseLorus?.();
+
+  const isSolaris = special === "solaris-drone-throw" || id === "solaris-vaalor";
+  const isReginald = special === "reginald-thumbs" || id === "reginald-roi" || anim === "brawl";
+
+  if (!isSolaris && !isReginald) return;
+
+  playing = true;
+
+  if (prefersReducedMotion()) {
+    showHubCharacter({ src: fullSrc, name });
+    playing = false;
+    return;
+  }
+
+  try {
+    if (isSolaris) {
+      await playSolarisOnHub({ hubFelt, fullSrc, name });
+    } else if (isReginald) {
+      await playReginaldThumbsOnHub({ hubFelt, fullSrc, name });
+    }
+  } finally {
+    playing = false;
+  }
 }
 
 export function isMegaAnimPlaying() {
