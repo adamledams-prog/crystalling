@@ -216,12 +216,14 @@ function renderLorusGrid() {
     li.setAttribute("role", "button");
     li.setAttribute("aria-label", ch.name ? `Voir ${ch.name}` : "Voir le personnage");
 
+    const thumbSrc = ch.pixelSrc || ch.src;
     const img = document.createElement("img");
-    img.src = ch.src;
+    img.src = thumbSrc;
     img.alt = ch.name || "Personnage";
     img.width = 96;
     img.height = 96;
     img.draggable = false;
+    if (ch.pixelSrc) img.classList.add("lorus-card-img--pixel");
 
     const label = document.createElement("span");
     label.textContent = ch.name || "Sans nom";
@@ -231,10 +233,17 @@ function renderLorusGrid() {
     const runReveal = () => {
       if (isMegaAnimPlaying()) return;
       playMegaCharReveal({
+        id: ch.id,
         name: ch.name,
         imgEl: img,
         sheetEl,
         anim: ch.anim || "cosmic",
+        spritesheet: ch.spritesheet,
+        spriteFrames: ch.spriteFrames,
+        spriteSize: ch.spriteSize,
+        thumbSrc,
+        fullSrc: ch.src,
+        special: ch.special,
       });
     };
 
