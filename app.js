@@ -1,3 +1,5 @@
+import { isMegaAnimPlaying, playMegaCharReveal } from "./lorus-mega-anim.js";
+
 const STORAGE_PSEUDO = "guerre_pseudo";
 const STORAGE_TUTO_STEP = "guerre_tuto_step";
 const STORAGE_INSTALLED = "guerre_installed";
@@ -157,8 +159,11 @@ async function tryLockLandscape() {
 }
 
 const STORAGE_LORUS = "guerre_lorus_chars";
+const PERSOS_CATALOG = "./images/persos/persos.json";
 
-function getLorusCharacters() {
+let catalogPersos = [];
+
+function getExtraLorusCharacters() {
   try {
     const raw = localStorage.getItem(STORAGE_LORUS);
     const list = raw ? JSON.parse(raw) : [];
@@ -168,8 +173,32 @@ function getLorusCharacters() {
   }
 }
 
+function mergeLorusCharacters() {
+  const byKey = new Map();
+  for (const ch of catalogPersos) {
+    const key = ch.id || ch.src;
+    byKey.set(key, ch);
+  }
+  for (const ch of getExtraLorusCharacters()) {
+    const key = ch.id || ch.src;
+    byKey.set(key, ch);
+  }
+  return [...byKey.values()];
+}
+
+async function loadPersosCatalog() {
+  try {
+    const res = await fetch(PERSOS_CATALOG, { cache: "no-cache" });
+    if (!res.ok) return;
+    const data = await res.json();
+    catalogPersos = Array.isArray(data) ? data : [];
+  } catch {
+    catalogPersos = [];
+  }
+}
+
 function renderLorusGrid() {
-  const chars = getLorusCharacters();
+  const chars = mergeLorusCharacters();
   lorusGrid.querySelectorAll(".lorus-card").forEach((el) => el.remove());
 
   if (chars.length === 0) {
@@ -178,22 +207,49 @@ function renderLorusGrid() {
   }
 
   lorusEmpty.classList.add("hidden");
+  const sheetEl = document.querySelector(".lorus-sheet");
+
   for (const ch of chars) {
     const li = document.createElement("li");
     li.className = "lorus-card";
+    li.tabIndex = 0;
+    li.setAttribute("role", "button");
+    li.setAttribute("aria-label", ch.name ? `Voir ${ch.name}` : "Voir le personnage");
+
     const img = document.createElement("img");
     img.src = ch.src;
     img.alt = ch.name || "Personnage";
     img.width = 96;
     img.height = 96;
+    img.draggable = false;
+
     const label = document.createElement("span");
     label.textContent = ch.name || "Sans nom";
+
+    const runReveal = () => {
+      if (isMegaAnimPlaying()) return;
+      playMegaCharReveal({
+        name: ch.name,
+        imgEl: img,
+        sheetEl,
+      });
+    };
+
+    li.addEventListener("click", runReveal);
+    li.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        runReveal();
+      }
+    });
+
     li.append(img, label);
     lorusGrid.append(li);
   }
 }
 
-function openLorusPanel() {
+async function openLorusPanel() {
+  await loadPersosCatalog();
   renderLorusGrid();
   lorusPanel.classList.remove("hidden");
   lorusPanel.hidden = false;
@@ -408,6 +464,7 @@ function watchStandaloneMode() {
 
 registerServiceWorker();
 watchStandaloneMode();
+loadPersosCatalog();
 
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") enforceAppPresence();

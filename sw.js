@@ -1,11 +1,14 @@
-const CACHE = "guerre-v5";
+const CACHE = "guerre-v7";
 const ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
   "./app.js",
+  "./lorus-mega-anim.js",
   "./manifest.json",
   "./images/images__18_-removebg-preview (1).png",
+  "./images/persos/persos.json",
+  "./images/persos/solaris-vaalor.png",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
 ];
