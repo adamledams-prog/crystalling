@@ -2,6 +2,13 @@
   {
     "id": "solaris-vaalor",
     "name": "Solaris",
-    "src": "./images/persos/solaris-vaalor.png"
+    "src": "./images/persos/solaris-vaalor.png",
+    "anim": "cosmic"
+  },
+  {
+    "id": "reginald-roi",
+    "name": "Reginald",
+    "src": "./images/persos/reginald-roi.png",
+    "anim": "brawl"
   }
 ]

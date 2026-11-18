@@ -162,7 +162,7 @@ class ParticleField {
 
 let playing = false;
 
-export async function playMegaCharReveal({ name, imgEl, sheetEl }) {
+export async function playMegaCharReveal({ name, imgEl, sheetEl, anim = "cosmic" }) {
   if (playing) return;
   playing = true;
 
@@ -172,7 +172,10 @@ export async function playMegaCharReveal({ name, imgEl, sheetEl }) {
   const heroName = stage?.querySelector(".lorus-mega-name");
   const canvas = stage?.querySelector(".lorus-mega-canvas");
   const flash = stage?.querySelector(".lorus-mega-flash");
+  const sunburst = stage?.querySelector(".lorus-mega-sunburst");
+  const badge = document.getElementById("lorus-mega-badge");
   const card = imgEl?.closest(".lorus-card");
+  const isBrawl = anim === "brawl";
 
   if (!stage || !hero || !heroImg || !canvas || !imgEl || !sheetEl) {
     playing = false;
@@ -183,8 +186,10 @@ export async function playMegaCharReveal({ name, imgEl, sheetEl }) {
 
   stage.hidden = false;
   stage.classList.add("lorus-mega--active");
+  if (isBrawl) stage.classList.add("lorus-mega--brawl");
   card?.classList.add("lorus-card--charging");
   sheetEl.classList.add("lorus-sheet--mega");
+  if (isBrawl) sheetEl.classList.add("lorus-sheet--brawl");
 
   const field = new ParticleField(canvas);
   const onResize = () => field.resize();
@@ -194,6 +199,14 @@ export async function playMegaCharReveal({ name, imgEl, sheetEl }) {
   heroImg.src = imgEl.src;
   heroImg.alt = imgEl.alt;
   heroName.textContent = name || "";
+  if (badge) {
+    if (isBrawl) {
+      badge.hidden = false;
+      badge.textContent = "BRAWLER !";
+    } else {
+      badge.hidden = true;
+    }
+  }
 
   const sheetRect = sheetEl.getBoundingClientRect();
   const start = imgEl.getBoundingClientRect();
@@ -226,10 +239,20 @@ export async function playMegaCharReveal({ name, imgEl, sheetEl }) {
   card?.classList.remove("lorus-card--charging");
   card?.classList.add("lorus-card--fired");
 
-  setHeroAt(endC.x, endC.y, 1);
-  hero.className = "lorus-mega-hero lorus-mega-hero--show";
+  setHeroAt(endC.x, endC.y, isBrawl ? 0.15 : 1);
+  hero.className = isBrawl
+    ? "lorus-mega-hero lorus-mega-hero--brawl-drop"
+    : "lorus-mega-hero lorus-mega-hero--show";
 
-  field.burst(85);
+  if (isBrawl) {
+    sunburst?.classList.add("lorus-mega-sunburst--on");
+    await wait(60);
+    setHeroAt(endC.x, endC.y, 1);
+    hero.className = "lorus-mega-hero lorus-mega-hero--brawl-show";
+    field.burst(55);
+  } else {
+    field.burst(85);
+  }
   field.start();
   flash?.classList.add("lorus-mega-flash--on");
 
@@ -241,7 +264,7 @@ export async function playMegaCharReveal({ name, imgEl, sheetEl }) {
   await wait(PHASE_MS.launch);
   field.sparkles(30);
   field.start();
-  hero.classList.add("lorus-mega-hero--pulse");
+  hero.classList.add(isBrawl ? "lorus-mega-hero--brawl-idle" : "lorus-mega-hero--pulse");
 
   await wait(PHASE_MS.hero);
   hero.classList.add("lorus-mega-hero--outro");
@@ -252,12 +275,14 @@ export async function playMegaCharReveal({ name, imgEl, sheetEl }) {
 
   await wait(PHASE_MS.outro);
   field.stop();
-  stage.classList.remove("lorus-mega--active");
+  stage.classList.remove("lorus-mega--active", "lorus-mega--brawl");
   stage.hidden = true;
+  sunburst?.classList.remove("lorus-mega-sunburst--on");
+  if (badge) badge.hidden = true;
   hero.className = "lorus-mega-hero";
   heroImg.removeAttribute("src");
   card?.classList.remove("lorus-card--fired");
-  sheetEl.classList.remove("lorus-sheet--mega");
+  sheetEl.classList.remove("lorus-sheet--mega", "lorus-sheet--brawl");
   window.removeEventListener("resize", onResize);
   playing = false;
 }

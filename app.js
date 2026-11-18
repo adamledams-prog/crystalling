@@ -226,12 +226,15 @@ function renderLorusGrid() {
     const label = document.createElement("span");
     label.textContent = ch.name || "Sans nom";
 
+    if (ch.anim) li.dataset.anim = ch.anim;
+
     const runReveal = () => {
       if (isMegaAnimPlaying()) return;
       playMegaCharReveal({
         name: ch.name,
         imgEl: img,
         sheetEl,
+        anim: ch.anim || "cosmic",
       });
     };
 

@@ -1,4 +1,4 @@
-const CACHE = "guerre-v7";
+const CACHE = "guerre-v8";
 const ASSETS = [
   "./",
   "./index.html",
@@ -9,6 +9,7 @@ const ASSETS = [
   "./images/images__18_-removebg-preview (1).png",
   "./images/persos/persos.json",
   "./images/persos/solaris-vaalor.png",
+  "./images/persos/reginald-roi.png",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
 ];
