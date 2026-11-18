@@ -4,63 +4,51 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#1a5f4a" />
-    <meta name="description" content="Guerre — le jeu de cartes classique. Installe l'app et joue en duel." />
-    <title>Guerre — Tutoriel</title>
+    <meta name="description" content="Guerre — installe l'application et joue en duel." />
+    <title>Guerre</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="icons/icon-192.png" type="image/png" />
     <link rel="apple-touch-icon" href="icons/icon-192.png" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="felt">
-      <header class="top">
-        <p class="eyebrow">Jeu de cartes · duel</p>
-        <h1>Guerre</h1>
-      </header>
+    <main class="felt" aria-live="polite">
+      <h1 class="logo">Guerre</h1>
 
-      <section class="install-card" id="install-card" aria-live="polite">
-        <div class="install-status" id="install-status">
-          <span class="status-dot" id="status-dot"></span>
-          <p class="status-text" id="status-text">Vérification de l'installation…</p>
-        </div>
-        <button type="button" class="btn-install hidden" id="btn-install">
-          Installer Guerre
-        </button>
-        <p class="install-hint hidden" id="install-hint"></p>
-      </section>
-
-      <section class="tuto" aria-labelledby="tuto-title">
-        <h2 id="tuto-title">Comment jouer</h2>
-        <ol class="steps" id="steps">
-          <li>Chaque joueur reçoit la moitié du paquet, cartes face cachée.</li>
-          <li>À chaque tour, chacun retourne sa carte du dessus.</li>
-          <li>La carte la plus forte remporte la bataille et prend les deux cartes.</li>
-          <li>En cas d'égalité : <strong>bataille</strong> — on pose une carte face cachée puis une face visible.</li>
-          <li>Le premier à récupérer tout le paquet gagne la partie.</li>
-        </ol>
-      </section>
-
-      <section class="robot-zone">
-        <div class="bubble" id="robot-bubble">
-          <p id="robot-message">Salut ! Je suis ton guide pour Guerre.</p>
+      <section class="robot-zone" id="robot-zone">
+        <div class="bubble">
+          <p id="robot-message">Salut ! Installe l'application pour jouer à Guerre.</p>
         </div>
         <img
           class="robot"
           src="images/images__18_-removebg-preview (1).png"
-          alt="Robot guide du jeu Guerre"
-          width="220"
-          height="220"
+          alt=""
+          width="240"
+          height="240"
         />
-        <div class="robot-actions">
-          <button type="button" class="btn-ghost" id="btn-prev" disabled>Précédent</button>
-          <button type="button" class="btn-primary" id="btn-next">Suite du tuto</button>
-        </div>
-      </section>
 
-      <footer class="foot">
-        <p>Le duel arrive bientôt — reste installé pour y jouer hors ligne.</p>
-      </footer>
-    </div>
+        <div class="install-block" id="install-block">
+          <button type="button" class="btn-install hidden" id="btn-install">
+            Installer l'application
+          </button>
+          <p class="install-hint hidden" id="install-hint"></p>
+        </div>
+
+        <form class="tuto-form hidden" id="tuto-pseudo" autocomplete="off">
+          <label class="sr-only" for="pseudo-input">Ton pseudo</label>
+          <input
+            type="text"
+            id="pseudo-input"
+            name="pseudo"
+            maxlength="20"
+            placeholder="Ton pseudo…"
+            autocomplete="nickname"
+            enterkeyhint="done"
+          />
+          <button type="submit" class="btn-install">Valider</button>
+        </form>
+      </section>
+    </main>
     <script src="app.js" type="module"></script>
   </body>
 </html>

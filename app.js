@@ -1,131 +1,158 @@
-const TUTO_LINES = [
-  {
-    message:
-      "Salut ! Moi c'est ton robot guide. On va apprendre **Guerre**, le classique duel de cartes — et tu verras tout de suite si tu peux installer le jeu sur ton appareil.",
-    step: -1,
-  },
-  {
-    message:
-      "L'objectif est simple : récupérer **toutes** les cartes. Tu joues contre l'autre joueur (ou l'ordinateur plus tard). Pas de stratégie compliquée — juste la chance et les batailles !",
-    step: 0,
-  },
-  {
-    message:
-      "Au début, le paquet est coupé en deux. Tu ne regardes pas tes cartes : tu retournes toujours celle du **dessus** quand c'est ton tour.",
-    step: 1,
-  },
-  {
-    message:
-      "As bat Roi, Roi bat Dame… Dans notre version on suit l'ordre classique. La plus haute carte **gagne** le pli et rammasse les deux cartes sous son paquet.",
-    step: 2,
-  },
-  {
-    message:
-      "Même valeur ? C'est la **bataille** ! Chacun pose une carte face cachée, puis une face visible. Le gagnant prend toutes les cartes en jeu. Parfois ça enchaîne !",
-    step: 3,
-  },
-  {
-    message:
-      "Quand tu n'as plus de cartes, tu perds. Quand l'autre n'en a plus, tu gagnes. Installe **Guerre** pour retrouver ce tuto et le duel même sans connexion.",
-    step: 4,
-  },
-];
+const STORAGE_PSEUDO = "guerre_pseudo";
+const STORAGE_TUTO_STEP = "guerre_tuto_step";
+const STORAGE_INSTALLED = "guerre_installed";
 
-let tutoIndex = 0;
 let deferredPrompt = null;
 
-const statusDot = document.getElementById("status-dot");
-const statusText = document.getElementById("status-text");
 const btnInstall = document.getElementById("btn-install");
 const installHint = document.getElementById("install-hint");
+const installBlock = document.getElementById("install-block");
 const robotMessage = document.getElementById("robot-message");
-const btnPrev = document.getElementById("btn-prev");
-const btnNext = document.getElementById("btn-next");
-const stepsList = document.getElementById("steps");
+const tutoPseudoForm = document.getElementById("tuto-pseudo");
+const pseudoInput = document.getElementById("pseudo-input");
 
-function isStandalone() {
+const MSG = {
+  default: "Salut ! Installe l'application pour jouer à <strong>Guerre</strong>.",
+  canInstall: "Tu peux installer l'app maintenant — clique sur le bouton juste en dessous !",
+  refused: "Pas de souci. Tu pourras installer plus tard avec le bouton ou le menu du navigateur.",
+  ios: "Sur iPhone ou iPad : dans Safari, touche <strong>Partager</strong> puis « Sur l'écran d'accueil ».",
+  noHttps:
+    "Pour installer, ouvre le site en HTTPS (par ex. une fois qu'il est en ligne sur GitHub).",
+  noSw: "Utilise Chrome ou Edge pour pouvoir installer l'application.",
+  hintMenu: "Menu du navigateur → Installer Guerre.",
+  tutoWelcome: "Parfait, tu es sur l'application ! On commence le tutoriel.",
+  tutoPseudo:
+    "Parfait, écris ton <strong>pseudo</strong> — c'est comme ça que les autres te verront.",
+  tutoPseudoOk: (name) =>
+    `Nickel, <strong>${escapeHtml(name)}</strong> ! La suite du tuto arrive très bientôt.`,
+  tutoWelcomeBack: (name) =>
+    `Re-bienvenue <strong>${escapeHtml(name)}</strong> ! On reprend le tutoriel bientôt.`,
+};
+
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function isStandaloneDisplay() {
   return (
     window.matchMedia("(display-mode: standalone)").matches ||
     window.matchMedia("(display-mode: fullscreen)").matches ||
+    window.matchMedia("(display-mode: minimal-ui)").matches ||
     window.navigator.standalone === true
   );
+}
+
+function isInApp() {
+  if (isStandaloneDisplay()) return true;
+  const params = new URLSearchParams(location.search);
+  return params.get("app") === "1";
+}
+
+function isInstallRemembered() {
+  return localStorage.getItem(STORAGE_INSTALLED) === "1";
+}
+
+function rememberInstalled() {
+  localStorage.setItem(STORAGE_INSTALLED, "1");
+}
+
+/** Tutoriel accessible : app lancée depuis l’icône ou installation tout juste faite. */
+function isTutoUnlocked() {
+  return isInApp() || isInstallRemembered();
 }
 
 function isIos() {
   return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 }
 
-function formatRobotText(text) {
-  return text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+function say(html) {
+  robotMessage.innerHTML = html;
 }
 
-function highlightStep(index) {
-  const items = stepsList.querySelectorAll("li");
-  items.forEach((li, i) => {
-    li.classList.toggle("active-step", i === index);
-  });
+function showInstallButton(show) {
+  btnInstall.classList.toggle("hidden", !show);
+  btnInstall.disabled = !show;
 }
 
-function showTutoSlide(index) {
-  tutoIndex = index;
-  const slide = TUTO_LINES[index];
-  robotMessage.innerHTML = formatRobotText(slide.message);
-  if (slide.step >= 0) highlightStep(slide.step);
-  else stepsList.querySelectorAll("li").forEach((li) => li.classList.remove("active-step"));
-
-  btnPrev.disabled = index === 0;
-  btnNext.textContent = index === TUTO_LINES.length - 1 ? "Recommencer" : "Suite du tuto";
-}
-
-function setInstallState({ kind, title, hint, showButton }) {
-  statusDot.classList.remove("ok", "warn");
-  statusDot.classList.add(kind === "ok" ? "ok" : kind === "warn" ? "warn" : "");
-
-  statusText.textContent = title;
-
-  if (showButton && deferredPrompt) {
-    btnInstall.classList.remove("hidden");
-    btnInstall.disabled = false;
-  } else {
-    btnInstall.classList.add("hidden");
-  }
-
-  if (hint) {
-    installHint.textContent = hint;
+function setHint(text) {
+  if (text) {
+    installHint.textContent = text;
     installHint.classList.remove("hidden");
   } else {
     installHint.classList.add("hidden");
   }
 }
 
-async function refreshInstallUI() {
-  if (isStandalone()) {
-    setInstallState({
-      kind: "ok",
-      title: "Guerre est déjà installé — tu peux jouer depuis ton écran d'accueil.",
-      hint: null,
-      showButton: false,
-    });
+function getSavedPseudo() {
+  const p = localStorage.getItem(STORAGE_PSEUDO);
+  return p && p.trim() ? p.trim() : null;
+}
+
+function showPseudoForm(show) {
+  tutoPseudoForm.classList.toggle("hidden", !show);
+  if (show) {
+    const saved = getSavedPseudo();
+    if (saved) pseudoInput.value = saved;
+    setTimeout(() => pseudoInput.focus(), 100);
+  }
+}
+
+function startTuto({ justInstalled = false } = {}) {
+  installBlock.classList.add("hidden");
+  setHint(null);
+  showInstallButton(false);
+
+  const pseudo = getSavedPseudo();
+  const step = Number(localStorage.getItem(STORAGE_TUTO_STEP) || "0");
+
+  if (pseudo && step > 0) {
+    say(MSG.tutoWelcomeBack(pseudo));
+    showPseudoForm(false);
     return;
   }
+
+  if (pseudo && step === 0) {
+    say(MSG.tutoPseudo);
+    showPseudoForm(true);
+    return;
+  }
+
+  if (justInstalled || step === 0) {
+    if (isStandaloneDisplay() && !justInstalled) {
+      say(`${MSG.tutoWelcome}<br><br>${MSG.tutoPseudo}`);
+    } else {
+      say(MSG.tutoPseudo);
+    }
+    showPseudoForm(true);
+  }
+}
+
+function refreshInstallUI(opts) {
+  if (isTutoUnlocked()) {
+    startTuto(opts);
+    return;
+  }
+
+  installBlock.classList.remove("hidden");
+  showPseudoForm(false);
 
   if (deferredPrompt) {
-    setInstallState({
-      kind: "ok",
-      title: "Bonne nouvelle : tu peux installer Guerre sur cet appareil.",
-      hint: "Appuie sur le bouton doré pour ajouter l'application.",
-      showButton: true,
-    });
+    say(MSG.canInstall);
+    showInstallButton(true);
+    setHint(null);
     return;
   }
 
+  say(MSG.default);
+  showInstallButton(false);
+
   if (isIos()) {
-    setInstallState({
-      kind: "warn",
-      title: "Sur iPhone/iPad, l'installation passe par Safari.",
-      hint: "Ouvre ce site dans Safari, puis Partager → « Sur l'écran d'accueil ».",
-      showButton: false,
-    });
+    say(MSG.ios);
+    setHint(null);
     return;
   }
 
@@ -135,32 +162,38 @@ async function refreshInstallUI() {
     location.hostname === "127.0.0.1";
 
   if (!isSecure) {
-    setInstallState({
-      kind: "warn",
-      title: "Pour proposer l'installation, ouvre Guerre en HTTPS ou en local.",
-      hint: "Une fois en ligne (GitHub Pages ou autre), le bouton Install apparaîtra ici.",
-      showButton: false,
-    });
+    say(MSG.noHttps);
+    setHint(null);
     return;
   }
 
   if (!("serviceWorker" in navigator)) {
-    setInstallState({
-      kind: "warn",
-      title: "Ce navigateur ne gère pas l'installation d'applications web.",
-      hint: "Essaie Chrome, Edge ou un navigateur récent sur mobile.",
-      showButton: false,
-    });
+    say(MSG.noSw);
+    setHint(null);
     return;
   }
 
-  setInstallState({
-    kind: "warn",
-    title: "Installation pas encore disponible ici (visite une 2ᵉ fois ou utilise le menu du navigateur).",
-    hint: "Chrome/Edge : menu ⋮ → « Installer Guerre » ou « Ajouter à l'écran d'accueil ».",
-    showButton: false,
-  });
+  setHint(MSG.hintMenu);
 }
+
+tutoPseudoForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const raw = pseudoInput.value.trim();
+  if (raw.length < 2) {
+    say(`${MSG.tutoPseudo}<br><br><em>Il faut au moins 2 lettres.</em>`);
+    pseudoInput.focus();
+    return;
+  }
+  if (raw.length > 20) {
+    say(`${MSG.tutoPseudo}<br><br><em>20 caractères maximum.</em>`);
+    return;
+  }
+
+  localStorage.setItem(STORAGE_PSEUDO, raw);
+  localStorage.setItem(STORAGE_TUTO_STEP, "1");
+  showPseudoForm(false);
+  say(MSG.tutoPseudoOk(raw));
+});
 
 window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
@@ -170,9 +203,8 @@ window.addEventListener("beforeinstallprompt", (e) => {
 
 window.addEventListener("appinstalled", () => {
   deferredPrompt = null;
-  refreshInstallUI();
-  robotMessage.innerHTML =
-    "Installé ! <strong>Guerre</strong> est sur ton écran d'accueil. À bientôt pour le duel.";
+  rememberInstalled();
+  refreshInstallUI({ justInstalled: true });
 });
 
 btnInstall.addEventListener("click", async () => {
@@ -180,23 +212,8 @@ btnInstall.addEventListener("click", async () => {
   deferredPrompt.prompt();
   const { outcome } = await deferredPrompt.userChoice;
   deferredPrompt = null;
-  if (outcome === "accepted") {
-    refreshInstallUI();
-  } else {
-    await refreshInstallUI();
-  }
-});
-
-btnPrev.addEventListener("click", () => {
-  if (tutoIndex > 0) showTutoSlide(tutoIndex - 1);
-});
-
-btnNext.addEventListener("click", () => {
-  if (tutoIndex < TUTO_LINES.length - 1) {
-    showTutoSlide(tutoIndex + 1);
-  } else {
-    showTutoSlide(0);
-  }
+  if (outcome === "dismissed") say(MSG.refused);
+  refreshInstallUI();
 });
 
 async function registerServiceWorker() {
@@ -208,9 +225,31 @@ async function registerServiceWorker() {
   }
 }
 
-registerServiceWorker();
-showTutoSlide(0);
+async function syncInstalledState() {
+  if (isInstallRemembered() || isInApp()) return;
+  if (!("getInstalledRelatedApps" in navigator)) return;
+  try {
+    const related = await navigator.getInstalledRelatedApps();
+    if (related.length > 0) {
+      rememberInstalled();
+    }
+  } catch {
+    /* ignore */
+  }
+}
 
-window.addEventListener("load", () => {
-  setTimeout(refreshInstallUI, 400);
+function watchStandaloneMode() {
+  const mq = window.matchMedia("(display-mode: standalone)");
+  const onChange = () => {
+    if (mq.matches) refreshInstallUI();
+  };
+  if (mq.addEventListener) mq.addEventListener("change", onChange);
+  else mq.addListener(onChange);
+}
+
+registerServiceWorker();
+watchStandaloneMode();
+window.addEventListener("load", async () => {
+  await syncInstalledState();
+  setTimeout(() => refreshInstallUI(), 400);
 });
