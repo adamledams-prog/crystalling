@@ -10,6 +10,13 @@ const installBlock = document.getElementById("install-block");
 const robotMessage = document.getElementById("robot-message");
 const tutoPseudoForm = document.getElementById("tuto-pseudo");
 const pseudoInput = document.getElementById("pseudo-input");
+const screenOnboarding = document.getElementById("screen-onboarding");
+const screenHome = document.getElementById("screen-home");
+const hubName = document.getElementById("hub-name");
+const hubAvatar = document.getElementById("hub-avatar");
+const lorusPanel = document.getElementById("lorus-panel");
+const lorusGrid = document.getElementById("lorus-grid");
+const lorusEmpty = document.getElementById("lorus-empty");
 
 const MSG = {
   default: "Salut ! Installe l'application pour jouer à <strong>Guerre</strong>.",
@@ -24,10 +31,12 @@ const MSG = {
   tutoPseudo:
     "Parfait, écris ton <strong>pseudo</strong> — c'est comme ça que les autres te verront.",
   tutoPseudoOk: (name) =>
-    `Nickel, <strong>${escapeHtml(name)}</strong> ! La suite du tuto arrive très bientôt.`,
+    `Nickel, <strong>${escapeHtml(name)}</strong> ! Bienvenue dans l'arène. Tourne en paysage et appuie sur <strong>Jouer</strong> quand tu veux.`,
   tutoWelcomeBack: (name) =>
-    `Re-bienvenue <strong>${escapeHtml(name)}</strong> ! On reprend le tutoriel bientôt.`,
+    `Re-bienvenue <strong>${escapeHtml(name)}</strong> !`,
 };
+
+const TUTO_STEP_PSEUDO_DONE = 1;
 
 function escapeHtml(text) {
   return text
@@ -92,6 +101,104 @@ function getSavedPseudo() {
   return p && p.trim() ? p.trim() : null;
 }
 
+function getTutoStep() {
+  return Number(localStorage.getItem(STORAGE_TUTO_STEP) || "0");
+}
+
+function isTutoComplete() {
+  return Boolean(getSavedPseudo()) && getTutoStep() >= TUTO_STEP_PSEUDO_DONE;
+}
+
+function pseudoInitial(name) {
+  const ch = [...(name || "?")][0];
+  return ch ? ch.toUpperCase() : "?";
+}
+
+function showScreen(which) {
+  const home = which === "home";
+  document.body.classList.toggle("mode-onboarding", !home);
+  document.body.classList.toggle("mode-home", home);
+
+  screenOnboarding.classList.toggle("hidden", home);
+  screenHome.classList.toggle("hidden", !home);
+  screenHome.hidden = !home;
+}
+
+function updateHomeProfile() {
+  const name = getSavedPseudo() || "Joueur";
+  hubName.textContent = name;
+  hubAvatar.textContent = pseudoInitial(name);
+}
+
+function showHomeScreen() {
+  updateHomeProfile();
+  showScreen("home");
+  tryLockLandscape();
+}
+
+function showOnboardingScreen() {
+  showScreen("onboarding");
+}
+
+async function tryLockLandscape() {
+  if (!screenOrientation?.lock) return;
+  try {
+    await screen.orientation.lock("landscape");
+  } catch {
+    /* navigateurs / iOS souvent bloquent avant geste utilisateur */
+  }
+}
+
+const STORAGE_LORUS = "guerre_lorus_chars";
+
+function getLorusCharacters() {
+  try {
+    const raw = localStorage.getItem(STORAGE_LORUS);
+    const list = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list : [];
+  } catch {
+    return [];
+  }
+}
+
+function renderLorusGrid() {
+  const chars = getLorusCharacters();
+  lorusGrid.querySelectorAll(".lorus-card").forEach((el) => el.remove());
+
+  if (chars.length === 0) {
+    lorusEmpty.classList.remove("hidden");
+    return;
+  }
+
+  lorusEmpty.classList.add("hidden");
+  for (const ch of chars) {
+    const li = document.createElement("li");
+    li.className = "lorus-card";
+    const img = document.createElement("img");
+    img.src = ch.src;
+    img.alt = ch.name || "Personnage";
+    img.width = 96;
+    img.height = 96;
+    const label = document.createElement("span");
+    label.textContent = ch.name || "Sans nom";
+    li.append(img, label);
+    lorusGrid.append(li);
+  }
+}
+
+function openLorusPanel() {
+  renderLorusGrid();
+  lorusPanel.classList.remove("hidden");
+  lorusPanel.hidden = false;
+  document.getElementById("lorus-close")?.focus();
+}
+
+function closeLorusPanel() {
+  lorusPanel.classList.add("hidden");
+  lorusPanel.hidden = true;
+  document.getElementById("btn-lorus")?.focus();
+}
+
 function showPseudoForm(show) {
   tutoPseudoForm.classList.toggle("hidden", !show);
   if (show) {
@@ -109,9 +216,8 @@ function startTuto({ justInstalled = false } = {}) {
   const pseudo = getSavedPseudo();
   const step = Number(localStorage.getItem(STORAGE_TUTO_STEP) || "0");
 
-  if (pseudo && step > 0) {
-    say(MSG.tutoWelcomeBack(pseudo));
-    showPseudoForm(false);
+  if (pseudo && step >= TUTO_STEP_PSEUDO_DONE) {
+    showHomeScreen();
     return;
   }
 
@@ -132,11 +238,18 @@ function startTuto({ justInstalled = false } = {}) {
 }
 
 function refreshInstallUI(opts) {
+  if (isTutoUnlocked() && isTutoComplete()) {
+    showHomeScreen();
+    return;
+  }
+
   if (isTutoUnlocked()) {
+    showOnboardingScreen();
     startTuto(opts);
     return;
   }
 
+  showOnboardingScreen();
   installBlock.classList.remove("hidden");
   showPseudoForm(false);
 
@@ -190,9 +303,38 @@ tutoPseudoForm.addEventListener("submit", (e) => {
   }
 
   localStorage.setItem(STORAGE_PSEUDO, raw);
-  localStorage.setItem(STORAGE_TUTO_STEP, "1");
+  localStorage.setItem(STORAGE_TUTO_STEP, String(TUTO_STEP_PSEUDO_DONE));
   showPseudoForm(false);
   say(MSG.tutoPseudoOk(raw));
+  setTimeout(() => showHomeScreen(), 1400);
+});
+
+document.getElementById("btn-jouer")?.addEventListener("click", () => {
+  tryLockLandscape();
+});
+
+document.getElementById("btn-lorus")?.addEventListener("click", () => {
+  openLorusPanel();
+});
+
+document.getElementById("lorus-close")?.addEventListener("click", () => {
+  closeLorusPanel();
+});
+
+document.getElementById("lorus-backdrop")?.addEventListener("click", () => {
+  closeLorusPanel();
+});
+
+document.getElementById("btn-magasin")?.addEventListener("click", () => {
+  /* magasin : à venir */
+});
+
+document.getElementById("btn-amis")?.addEventListener("click", () => {
+  /* amis : à venir */
+});
+
+document.getElementById("hub-profile")?.addEventListener("click", () => {
+  /* profil : à venir */
 });
 
 window.addEventListener("beforeinstallprompt", (e) => {

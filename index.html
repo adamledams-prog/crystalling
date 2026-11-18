@@ -11,44 +11,88 @@
     <link rel="apple-touch-icon" href="icons/icon-192.png" />
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body>
-    <main class="felt" aria-live="polite">
-      <h1 class="logo">Guerre</h1>
+  <body class="mode-onboarding">
+    <div id="screen-onboarding" class="screen-onboarding">
+      <main class="felt" aria-live="polite">
+        <h1 class="logo">Guerre</h1>
 
-      <section class="robot-zone" id="robot-zone">
-        <div class="bubble">
-          <p id="robot-message">Salut ! Installe l'application pour jouer à Guerre.</p>
-        </div>
-        <img
-          class="robot"
-          src="images/images__18_-removebg-preview (1).png"
-          alt=""
-          width="240"
-          height="240"
-        />
-
-        <div class="install-block" id="install-block">
-          <button type="button" class="btn-install hidden" id="btn-install">
-            Installer l'application
-          </button>
-          <p class="install-hint hidden" id="install-hint"></p>
-        </div>
-
-        <form class="tuto-form hidden" id="tuto-pseudo" autocomplete="off">
-          <label class="sr-only" for="pseudo-input">Ton pseudo</label>
-          <input
-            type="text"
-            id="pseudo-input"
-            name="pseudo"
-            maxlength="20"
-            placeholder="Ton pseudo…"
-            autocomplete="nickname"
-            enterkeyhint="done"
+        <section class="robot-zone" id="robot-zone">
+          <div class="bubble">
+            <p id="robot-message">Salut ! Installe l'application pour jouer à Guerre.</p>
+          </div>
+          <img
+            class="robot"
+            src="images/images__18_-removebg-preview (1).png"
+            alt=""
+            width="240"
+            height="240"
           />
-          <button type="submit" class="btn-install">Valider</button>
-        </form>
-      </section>
-    </main>
+
+          <div class="install-block" id="install-block">
+            <button type="button" class="btn-install hidden" id="btn-install">
+              Installer l'application
+            </button>
+            <p class="install-hint hidden" id="install-hint"></p>
+          </div>
+
+          <form class="tuto-form hidden" id="tuto-pseudo" autocomplete="off">
+            <label class="sr-only" for="pseudo-input">Ton pseudo</label>
+            <input
+              type="text"
+              id="pseudo-input"
+              name="pseudo"
+              maxlength="20"
+              placeholder="Ton pseudo…"
+              autocomplete="nickname"
+              enterkeyhint="done"
+            />
+            <button type="submit" class="btn-install">Valider</button>
+          </form>
+        </section>
+      </main>
+    </div>
+
+    <div id="screen-home" class="screen-home hidden" hidden aria-label="Menu principal">
+      <div class="hub-felt">
+        <p class="hub-title">Guerre</p>
+
+        <button type="button" class="hub-profile" id="hub-profile">
+          <span class="hub-avatar" id="hub-avatar" aria-hidden="true">?</span>
+          <span class="hub-name" id="hub-name">Joueur</span>
+        </button>
+
+        <button type="button" class="hub-pill hub-amis" id="btn-amis">Amis</button>
+
+        <button type="button" class="hub-side hub-magasin" id="btn-magasin">Magasin</button>
+
+        <div class="hub-bottom" role="group" aria-label="Actions principales">
+          <button type="button" class="hub-play hub-jouer" id="btn-jouer">Jouer</button>
+          <button type="button" class="hub-lorus" id="btn-lorus">Lorus</button>
+        </div>
+      </div>
+    </div>
+
+    <article
+      class="lorus-panel hidden"
+      id="lorus-panel"
+      role="dialog"
+      aria-labelledby="lorus-title"
+      aria-modal="true"
+      hidden
+    >
+      <div class="lorus-backdrop" id="lorus-backdrop" tabindex="-1" aria-hidden="true"></div>
+      <div class="lorus-sheet">
+        <header class="lorus-head">
+          <h2 id="lorus-title">Lorus</h2>
+          <p class="lorus-sub">Tous tes personnages</p>
+          <button type="button" class="lorus-close" id="lorus-close" aria-label="Fermer">×</button>
+        </header>
+        <ul class="lorus-grid" id="lorus-grid" aria-live="polite">
+          <li class="lorus-empty" id="lorus-empty">Aucun perso pour l’instant — ajoute-les ici bientôt.</li>
+        </ul>
+      </div>
+    </article>
+
     <script src="app.js" type="module"></script>
   </body>
 </html>

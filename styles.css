@@ -17,12 +17,19 @@
 body {
   margin: 0;
   min-height: 100dvh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-family: "Segoe UI", system-ui, sans-serif;
   color: var(--cream);
   background: radial-gradient(ellipse at top, #1a6b55 0%, var(--felt) 45%, #06251e 100%);
+}
+
+body.mode-onboarding {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body.mode-home {
+  overflow: hidden;
 }
 
 .felt {
@@ -162,4 +169,308 @@ body {
 
 .hidden {
   display: none !important;
+}
+
+/* --- Écran d'accueil (paysage) --- */
+
+.screen-onboarding {
+  width: 100%;
+}
+
+.screen-home {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: max(0.75rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right))
+    max(0.75rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+}
+
+.hub-felt {
+  position: relative;
+  flex: 1;
+  max-width: 100%;
+  border-radius: 20px;
+  border: 1px solid rgba(232, 197, 71, 0.22);
+  background: radial-gradient(ellipse at 30% 20%, #1a6b55 0%, var(--felt) 55%, #06251e 100%);
+  box-shadow: var(--shadow);
+}
+
+.hub-title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  font-size: clamp(1.75rem, 6vw, 3rem);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: rgba(232, 197, 71, 0.18);
+  pointer-events: none;
+  user-select: none;
+}
+
+.hub-profile {
+  position: absolute;
+  top: 0.65rem;
+  left: 0.65rem;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  max-width: min(48vw, 220px);
+  padding: 0.35rem 0.65rem 0.35rem 0.35rem;
+  font: inherit;
+  color: var(--cream);
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(232, 197, 71, 0.35);
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.hub-profile:hover {
+  filter: brightness(1.06);
+}
+
+.hub-avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--ink);
+  background: linear-gradient(180deg, #f5d76e, var(--gold));
+  border-radius: 50%;
+}
+
+.hub-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.hub-pill {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  padding: 0.55rem 1.1rem;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--cream);
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(143, 184, 171, 0.5);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.hub-pill:hover {
+  background: rgba(26, 107, 85, 0.55);
+}
+
+.hub-side {
+  position: absolute;
+  right: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  min-width: 5.5rem;
+  padding: 0.85rem 1.15rem;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+  background: linear-gradient(180deg, #c8e6dc, #8fb8ab);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+
+.hub-side:hover {
+  filter: brightness(1.05);
+}
+
+.hub-bottom {
+  position: absolute;
+  right: 0.85rem;
+  bottom: 0.75rem;
+  display: flex;
+  align-items: stretch;
+  gap: 0.55rem;
+}
+
+.hub-play,
+.hub-lorus {
+  padding: 0.95rem 1.25rem;
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+
+.hub-play {
+  min-width: 6.75rem;
+  font-size: 1.15rem;
+  color: var(--ink);
+  background: linear-gradient(180deg, #f5d76e, var(--gold));
+}
+
+.hub-lorus {
+  min-width: 5.5rem;
+  color: var(--cream);
+  background: linear-gradient(180deg, #2d8f72, #1a5f4a);
+  border: 2px solid rgba(232, 197, 71, 0.45);
+}
+
+.hub-play:hover,
+.hub-lorus:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+/* --- Panneau Lorus (personnages) --- */
+
+.lorus-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.lorus-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 37, 30, 0.72);
+}
+
+.lorus-sheet {
+  position: relative;
+  width: min(92vw, 520px);
+  max-height: min(85dvh, 380px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  border: 1px solid rgba(232, 197, 71, 0.35);
+  background: linear-gradient(165deg, #1a6b55 0%, var(--felt) 45%, #06251e 100%);
+  box-shadow: var(--shadow);
+}
+
+.lorus-head {
+  position: relative;
+  padding: 1rem 2.5rem 0.65rem 1.1rem;
+  border-bottom: 1px solid rgba(143, 184, 171, 0.25);
+}
+
+.lorus-head h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  color: var(--gold);
+}
+
+.lorus-sub {
+  margin: 0.2rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.lorus-close {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--cream);
+  background: rgba(0, 0, 0, 0.25);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.lorus-grid {
+  margin: 0;
+  padding: 0.85rem 1rem 1rem;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(4.75rem, 1fr));
+  gap: 0.65rem;
+  overflow-y: auto;
+}
+
+.lorus-empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 1.25rem 0.75rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--muted);
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 12px;
+  border: 1px dashed rgba(143, 184, 171, 0.35);
+}
+
+.lorus-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(232, 197, 71, 0.2);
+}
+
+.lorus-card img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.lorus-card span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.2;
+}
+
+@media (orientation: portrait) and (max-height: 520px) {
+  .screen-home .hub-felt {
+    min-height: 0;
+  }
+}
+
+@media (orientation: portrait) {
+  body.mode-home::before {
+    content: "Tourne le téléphone en paysage pour jouer";
+    position: fixed;
+    z-index: 100;
+    inset: auto 1rem 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 22rem;
+    padding: 0.65rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    color: var(--ink);
+    background: var(--gold);
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    pointer-events: none;
+  }
 }
