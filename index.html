@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1a5f4a" />
+    <meta name="description" content="Guerre — le jeu de cartes classique. Installe l'app et joue en duel." />
+    <title>Guerre — Tutoriel</title>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" href="icons/icon-192.png" type="image/png" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="felt">
+      <header class="top">
+        <p class="eyebrow">Jeu de cartes · duel</p>
+        <h1>Guerre</h1>
+      </header>
+
+      <section class="install-card" id="install-card" aria-live="polite">
+        <div class="install-status" id="install-status">
+          <span class="status-dot" id="status-dot"></span>
+          <p class="status-text" id="status-text">Vérification de l'installation…</p>
+        </div>
+        <button type="button" class="btn-install hidden" id="btn-install">
+          Installer Guerre
+        </button>
+        <p class="install-hint hidden" id="install-hint"></p>
+      </section>
+
+      <section class="tuto" aria-labelledby="tuto-title">
+        <h2 id="tuto-title">Comment jouer</h2>
+        <ol class="steps" id="steps">
+          <li>Chaque joueur reçoit la moitié du paquet, cartes face cachée.</li>
+          <li>À chaque tour, chacun retourne sa carte du dessus.</li>
+          <li>La carte la plus forte remporte la bataille et prend les deux cartes.</li>
+          <li>En cas d'égalité : <strong>bataille</strong> — on pose une carte face cachée puis une face visible.</li>
+          <li>Le premier à récupérer tout le paquet gagne la partie.</li>
+        </ol>
+      </section>
+
+      <section class="robot-zone">
+        <div class="bubble" id="robot-bubble">
+          <p id="robot-message">Salut ! Je suis ton guide pour Guerre.</p>
+        </div>
+        <img
+          class="robot"
+          src="images/images__18_-removebg-preview (1).png"
+          alt="Robot guide du jeu Guerre"
+          width="220"
+          height="220"
+        />
+        <div class="robot-actions">
+          <button type="button" class="btn-ghost" id="btn-prev" disabled>Précédent</button>
+          <button type="button" class="btn-primary" id="btn-next">Suite du tuto</button>
+        </div>
+      </section>
+
+      <footer class="foot">
+        <p>Le duel arrive bientôt — reste installé pour y jouer hors ligne.</p>
+      </footer>
+    </div>
+    <script src="app.js" type="module"></script>
+  </body>
+</html>

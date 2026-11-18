@@ -1,0 +1,265 @@
+:root {
+  --felt: #0d3d32;
+  --felt-light: #145544;
+  --gold: #e8c547;
+  --cream: #f4f0e6;
+  --ink: #0f1a17;
+  --ok: #4ade80;
+  --warn: #fbbf24;
+  --muted: #8fb8ab;
+  --radius: 16px;
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  color: var(--cream);
+  background: radial-gradient(ellipse at top, #1a6b55 0%, var(--felt) 45%, #06251e 100%);
+}
+
+.felt {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 2rem;
+}
+
+.top {
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+h1 {
+  margin: 0.25rem 0 0;
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+.install-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(232, 197, 71, 0.25);
+  border-radius: var(--radius);
+  padding: 1rem 1.15rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.25rem;
+}
+
+.install-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+}
+
+.status-dot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  margin-top: 0.35rem;
+  border-radius: 50%;
+  background: var(--muted);
+  animation: pulse 1.2s ease infinite;
+}
+
+.status-dot.ok {
+  background: var(--ok);
+  animation: none;
+}
+
+.status-dot.warn {
+  background: var(--warn);
+  animation: none;
+}
+
+.status-text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.btn-install {
+  margin-top: 0.85rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+  background: linear-gradient(180deg, #f5d76e, var(--gold));
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.btn-install:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.btn-install:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.install-hint {
+  margin: 0.65rem 0 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.tuto {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius);
+  padding: 1rem 1.15rem 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.tuto h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+  color: var(--gold);
+}
+
+.steps {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--cream);
+}
+
+.steps li {
+  margin-bottom: 0.45rem;
+}
+
+.steps li.active-step {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.robot-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.bubble {
+  position: relative;
+  width: 100%;
+  padding: 1rem 1.1rem;
+  background: var(--cream);
+  color: var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  min-height: 4.5rem;
+}
+
+.bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 10px solid transparent;
+  border-top-color: var(--cream);
+}
+
+#robot-message {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.robot {
+  max-width: 200px;
+  height: auto;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
+}
+
+.robot-actions {
+  display: flex;
+  gap: 0.65rem;
+  width: 100%;
+}
+
+.btn-primary,
+.btn-ghost {
+  flex: 1;
+  padding: 0.7rem 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.btn-primary {
+  background: var(--felt-light);
+  color: var(--cream);
+  border-color: rgba(232, 197, 71, 0.4);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #1a6b55;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  border-color: rgba(143, 184, 171, 0.35);
+}
+
+.btn-ghost:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.foot {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.hidden {
+  display: none !important;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (min-width: 600px) {
+  .felt {
+    padding-top: 2rem;
+  }
+
+  h1 {
+    font-size: 3rem;
+  }
+}
