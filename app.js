@@ -37,6 +37,7 @@ const MSG = {
 };
 
 const TUTO_STEP_PSEUDO_DONE = 1;
+const APP_WATCH_MS = 10_000;
 
 function escapeHtml(text) {
   return text
@@ -55,10 +56,16 @@ function isStandaloneDisplay() {
   );
 }
 
-function isInApp() {
-  if (isStandaloneDisplay()) return true;
+function isDevAppBypass() {
   const params = new URLSearchParams(location.search);
-  return params.get("app") === "1";
+  if (params.get("app") !== "1") return false;
+  const host = location.hostname;
+  return host === "localhost" || host === "127.0.0.1";
+}
+
+/** Vrai uniquement si l’app est ouverte depuis l’icône (PWA), pas l’onglet navigateur. */
+function isOnGuerreApp() {
+  return isStandaloneDisplay() || isDevAppBypass();
 }
 
 function isInstallRemembered() {
@@ -69,9 +76,9 @@ function rememberInstalled() {
   localStorage.setItem(STORAGE_INSTALLED, "1");
 }
 
-/** Tutoriel accessible : app lancée depuis l’icône ou installation tout juste faite. */
+/** Tutoriel / menu : seulement dans l’app installée. */
 function isTutoUnlocked() {
-  return isInApp() || isInstallRemembered();
+  return isOnGuerreApp();
 }
 
 function isIos() {
@@ -237,18 +244,7 @@ function startTuto({ justInstalled = false } = {}) {
   }
 }
 
-function refreshInstallUI(opts) {
-  if (isTutoUnlocked() && isTutoComplete()) {
-    showHomeScreen();
-    return;
-  }
-
-  if (isTutoUnlocked()) {
-    showOnboardingScreen();
-    startTuto(opts);
-    return;
-  }
-
+function showInstallRequiredUI() {
   showOnboardingScreen();
   installBlock.classList.remove("hidden");
   showPseudoForm(false);
@@ -257,7 +253,7 @@ function refreshInstallUI(opts) {
     say(MSG.canInstall);
     showInstallButton(true);
     setHint(null);
-    return;
+    return true;
   }
 
   say(MSG.default);
@@ -287,6 +283,27 @@ function refreshInstallUI(opts) {
   }
 
   setHint(MSG.hintMenu);
+  return true;
+}
+
+function refreshInstallUI(opts) {
+  if (!isTutoUnlocked()) {
+    if (!lorusPanel.hidden) closeLorusPanel();
+    showInstallRequiredUI();
+    return;
+  }
+
+  if (isTutoComplete()) {
+    showHomeScreen();
+    return;
+  }
+
+  showOnboardingScreen();
+  startTuto(opts);
+}
+
+function enforceAppPresence() {
+  refreshInstallUI();
 }
 
 tutoPseudoForm.addEventListener("submit", (e) => {
@@ -368,7 +385,7 @@ async function registerServiceWorker() {
 }
 
 async function syncInstalledState() {
-  if (isInstallRemembered() || isInApp()) return;
+  if (isInstallRemembered() || isOnGuerreApp()) return;
   if (!("getInstalledRelatedApps" in navigator)) return;
   try {
     const related = await navigator.getInstalledRelatedApps();
@@ -391,7 +408,13 @@ function watchStandaloneMode() {
 
 registerServiceWorker();
 watchStandaloneMode();
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") enforceAppPresence();
+});
+
 window.addEventListener("load", async () => {
   await syncInstalledState();
   setTimeout(() => refreshInstallUI(), 400);
+  setInterval(enforceAppPresence, APP_WATCH_MS);
 });
