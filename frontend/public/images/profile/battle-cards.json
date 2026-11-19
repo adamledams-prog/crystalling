@@ -1,0 +1,82 @@
+[
+  {
+    "id": "cubes-violet",
+    "title": "L'artiste",
+    "subtitle": "Motifs et cubes",
+    "theme": "cubes-violet",
+    "image": "./images/profile/cards/cubes-violet.png",
+    "pin": "◆",
+    "accent": "#b57edc",
+    "rarity": "epic"
+  },
+  {
+    "id": "donuts-bleu",
+    "title": "Douceur",
+    "subtitle": "Pause sucrée",
+    "theme": "donuts-bleu",
+    "image": "./images/profile/cards/donuts-bleu.png",
+    "pin": "✦",
+    "accent": "#4da3ff",
+    "rarity": "rare"
+  },
+  {
+    "id": "diamant-rose",
+    "title": "Éclat",
+    "subtitle": "Trop brillant",
+    "theme": "diamant-rose",
+    "image": "./images/profile/cards/diamant-rose.png",
+    "pin": "♦",
+    "accent": "#ff6eb4",
+    "rarity": "legendary"
+  },
+  {
+    "id": "toxique-vert",
+    "title": "Le salé",
+    "subtitle": "Ça pique",
+    "theme": "toxique-vert",
+    "image": "./images/profile/cards/toxique-vert.png",
+    "pin": "☠",
+    "accent": "#9dff6a",
+    "rarity": "rare"
+  },
+  {
+    "id": "crane-brique",
+    "title": "Dur à cuire",
+    "subtitle": "Pas peur",
+    "theme": "crane-brique",
+    "image": "./images/profile/cards/crane-brique.png",
+    "pin": "☠",
+    "accent": "#7eb8ff",
+    "rarity": "epic"
+  },
+  {
+    "id": "masque-rose",
+    "title": "Drama queen",
+    "subtitle": "Spectacle garanti",
+    "theme": "masque-rose",
+    "image": "./images/profile/cards/masque-rose.png",
+    "pin": "◎",
+    "accent": "#ff6eb4",
+    "rarity": "legendary"
+  },
+  {
+    "id": "fiole-vert",
+    "title": "Alchimiste",
+    "subtitle": "Mélange mortel",
+    "theme": "fiole-vert",
+    "image": "./images/profile/cards/fiole-vert.png",
+    "pin": "⚗",
+    "accent": "#5ce1e6",
+    "rarity": "rare"
+  },
+  {
+    "id": "arene-or",
+    "title": "Champion",
+    "subtitle": "L'arène t'appelle",
+    "theme": "arene-or",
+    "image": "./images/profile/cards/arene-or.png",
+    "pin": "★",
+    "accent": "#e8c547",
+    "rarity": "legendary"
+  }
+]

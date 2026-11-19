@@ -1,0 +1,13 @@
+{
+  "name": "Route royale",
+  "tiers": [
+    { "id": "r10", "trophies": 10, "type": "coins", "amount": 50, "label": "50 pièces" },
+    { "id": "r25", "trophies": 25, "type": "chest", "chest": "wood", "label": "Coffre bois" },
+    { "id": "r50", "trophies": 50, "type": "coins", "amount": 120, "label": "120 pièces" },
+    { "id": "r75", "trophies": 75, "type": "chest", "chest": "silver", "label": "Coffre argent" },
+    { "id": "r100", "trophies": 100, "type": "coins", "amount": 250, "label": "250 pièces" },
+    { "id": "r150", "trophies": 150, "type": "chest", "chest": "gold", "label": "Coffre or" },
+    { "id": "r200", "trophies": 200, "type": "card", "label": "Carte rare" },
+    { "id": "r300", "trophies": 300, "type": "chest", "chest": "legend", "label": "Coffre légendaire" }
+  ]
+}

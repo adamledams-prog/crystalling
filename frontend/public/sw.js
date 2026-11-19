@@ -1,4 +1,4 @@
-const CACHE = "guerre-v28";
+const CACHE = "guerre-v43";
 
 const ASSETS = [
   "./",
@@ -8,8 +8,20 @@ const ASSETS = [
   "./version.json",
   "./images/load-screen.png",
   "./images/hub-battle-bg.png",
+  "./images/shop-bg.png",
+  "./images/tour-roi.png",
+  "./data/reward-road.json",
   "./images/images__18_-removebg-preview (1).png",
   "./images/persos/persos.json",
+  "./images/profile/battle-cards.json",
+  "./images/profile/cards/cubes-violet.png",
+  "./images/profile/cards/donuts-bleu.png",
+  "./images/profile/cards/diamant-rose.png",
+  "./images/profile/cards/toxique-vert.png",
+  "./images/profile/cards/crane-brique.png",
+  "./images/profile/cards/masque-rose.png",
+  "./images/profile/cards/fiole-vert.png",
+  "./images/profile/cards/arene-or.png",
   "./images/persos/solaris-vaalor.png",
   "./images/persos/reginald-roi.png",
   "./images/persos/reginald-roi-pixel.png",
@@ -44,7 +56,7 @@ const ASSETS = [
 ];
 
 const NETWORK_FIRST_RE =
-  /(index\.html|src\/main\.js|\/assets\/.*\.(js|css)|sw\.js|version\.json|persos\.json)(\?|$)/i;
+  /(index\.html|src\/main\.js|\/assets\/.*\.(js|css)|sw\.js|version\.json|persos\.json|battle-cards\.json|reward-road\.json)(\?|$)/i;
 
 function wantsNetworkFirst(url) {
   const path = new URL(url, self.location.href).pathname;

@@ -67,6 +67,7 @@
           </form>
         </section>
       </main>
+      <button type="button" class="code-entry-btn" data-open-code id="btn-code-onboarding">Code</button>
     </div>
 
     <div id="screen-home" class="screen-home hidden" hidden aria-label="Menu principal">
@@ -154,19 +155,90 @@
           ↻
         </button>
 
-        <button type="button" class="hub-profile" id="hub-profile">
-          <span class="hub-avatar" id="hub-avatar" aria-hidden="true">?</span>
-          <span class="hub-name" id="hub-name">Joueur</span>
-        </button>
-
-        <button type="button" class="hub-pill hub-amis" id="btn-amis">Amis</button>
-
-        <button type="button" class="hub-side hub-magasin" id="btn-magasin">Magasin</button>
-
-        <div class="hub-bottom" role="group" aria-label="Actions principales">
-          <button type="button" class="hub-play hub-jouer" id="btn-jouer">Jouer</button>
-          <button type="button" class="hub-lorus" id="btn-lorus">Lorus</button>
+        <div class="hub-top-left">
+          <div class="hub-keys" aria-label="Clés du magasin">
+            <button
+              type="button"
+              class="hub-key hub-key--card"
+              id="hub-key-card"
+              aria-label="Clés carte de combat"
+              title="Utiliser une clé pour choisir une carte"
+            >
+              <span class="hub-key-glyph hub-key-glyph--card" aria-hidden="true">🃏</span>
+              <span class="hub-key-count" id="hub-key-card-count">0</span>
+            </button>
+            <button
+              type="button"
+              class="hub-key hub-key--lorus"
+              id="hub-key-lorus"
+              aria-label="Clés Lorus"
+              title="Utiliser une clé pour choisir un personnage"
+            >
+              <span class="hub-key-glyph" aria-hidden="true">🗝</span>
+              <span class="hub-key-count" id="hub-key-lorus-count">0</span>
+            </button>
+          </div>
+          <button type="button" class="hub-profile" id="hub-profile" aria-label="Profil">
+            <span class="hub-profile-card" id="hub-profile-card" aria-hidden="true"></span>
+            <span class="hub-avatar" id="hub-avatar" aria-hidden="true">?</span>
+            <span class="hub-profile-stack">
+              <span class="hub-name" id="hub-name">Joueur</span>
+              <span class="hub-card-slot" id="hub-mini-card" aria-hidden="true"></span>
+            </span>
+            <span class="sr-only" id="hub-card-title">Carte de combat</span>
+          </button>
         </div>
+
+        <p id="hub-creator-badge" class="hub-creator-badge hidden" hidden aria-live="polite">
+          Mode créateur — tout débloqué · pièces illimitées
+        </p>
+
+        <div class="hub-currency" id="hub-currency" aria-label="Monnaie">
+          <span class="hub-currency-icon" aria-hidden="true"></span>
+          <span class="hub-currency-amount" id="hub-currency-amount">0</span>
+        </div>
+
+        <nav class="hub-nav" aria-label="Navigation du hub">
+          <div class="hub-nav-col hub-nav-col--code">
+            <button type="button" class="hub-nav-btn hub-nav-btn--code" data-open-code id="btn-code">Code</button>
+            <button type="button" class="hub-nav-btn hub-nav-btn--exit hidden" id="btn-creator-exit" hidden>
+              Quitter
+            </button>
+          </div>
+          <div class="hub-nav-col">
+            <button type="button" class="hub-nav-btn hub-nav-btn--magasin" id="btn-magasin">Magasin</button>
+            <button type="button" class="hub-nav-btn hub-nav-btn--lorus" id="btn-lorus">Lorus</button>
+          </div>
+          <div class="hub-nav-col">
+            <button type="button" class="hub-nav-btn hub-nav-btn--amis" id="btn-amis">Amis</button>
+            <button type="button" class="hub-nav-btn hub-nav-btn--jouer" id="btn-jouer">Jouer</button>
+          </div>
+        </nav>
+      </div>
+    </div>
+
+    <div id="screen-shop" class="screen-shop hidden" hidden aria-label="Magasin">
+      <div class="shop-layout">
+        <aside class="shop-aside">
+          <button type="button" class="shop-back" id="shop-back">← Hub</button>
+          <h1 class="shop-title">Magasin</h1>
+          <p class="shop-sub">Offres qui changent toutes les 10 minutes.</p>
+          <div class="shop-rotation" aria-live="polite">
+            <p class="shop-rotation-label">Prochain renouvellement</p>
+            <p class="shop-rotation-timer" id="shop-rotation-timer">10:00</p>
+          </div>
+        </aside>
+        <section class="shop-main" aria-labelledby="shop-offers-title">
+          <div class="shop-head-row">
+            <h2 id="shop-offers-title" class="sr-only">Articles du magasin</h2>
+            <div class="shop-wallet" aria-label="Pièces">
+              <span class="hub-currency-icon" aria-hidden="true"></span>
+              <span id="shop-wallet-amount">0</span>
+            </div>
+          </div>
+          <div class="shop-offers" id="shop-offers" role="list"></div>
+          <p id="shop-toast" class="shop-toast hidden" role="status" aria-live="polite" hidden></p>
+        </section>
       </div>
     </div>
 
@@ -217,6 +289,179 @@
         <ul class="lorus-grid" id="lorus-grid" aria-live="polite">
           <li class="lorus-empty" id="lorus-empty">Aucun perso pour l’instant — ajoute-les ici bientôt.</li>
         </ul>
+      </div>
+    </article>
+
+    <article
+      class="lorus-panel profile-panel hidden"
+      id="profile-panel"
+      role="dialog"
+      aria-labelledby="profile-title"
+      aria-modal="true"
+      hidden
+    >
+      <div class="lorus-backdrop" id="profile-backdrop" tabindex="-1" aria-hidden="true"></div>
+      <div class="lorus-sheet profile-sheet">
+        <header class="lorus-head">
+          <h2 id="profile-title">Profil</h2>
+          <p class="lorus-sub" id="profile-subtitle">Pseudo et couleur</p>
+          <button type="button" class="lorus-close" id="profile-close" aria-label="Fermer">×</button>
+        </header>
+
+        <div class="profile-tabs" role="tablist" aria-label="Sections du profil">
+          <button
+            type="button"
+            class="profile-tab profile-tab--active"
+            id="profile-tab-identity"
+            role="tab"
+            aria-selected="true"
+            aria-controls="profile-view-identity"
+            data-profile-view="identity"
+          >
+            Identité
+          </button>
+          <button
+            type="button"
+            class="profile-tab"
+            id="profile-tab-cards"
+            role="tab"
+            aria-selected="false"
+            aria-controls="profile-view-cards"
+            data-profile-view="cards"
+          >
+            Carte
+          </button>
+        </div>
+
+        <div class="profile-body">
+          <div id="profile-view-identity" class="profile-view" role="tabpanel" aria-labelledby="profile-tab-identity">
+          <div class="profile-preview-wrap">
+            <p class="profile-section-label">Aperçu</p>
+            <div id="profile-preview-root" class="profile-preview-root"></div>
+          </div>
+
+          <div class="profile-name-block">
+            <div class="profile-name-head">
+              <label class="profile-section-label" for="profile-name-input">Ton pseudo</label>
+              <span class="profile-name-count" id="profile-name-count" aria-live="polite">0/20</span>
+            </div>
+            <input
+              type="text"
+              id="profile-name-input"
+              class="profile-name-input"
+              maxlength="20"
+              minlength="2"
+              placeholder="Ton pseudo…"
+              autocomplete="nickname"
+            />
+            <p class="profile-name-hint hidden" id="profile-name-hint" role="alert"></p>
+          </div>
+
+          <div class="profile-colors-block">
+            <div class="profile-colors-head">
+              <p class="profile-section-label">Couleur du nom</p>
+              <p class="profile-color-active" id="profile-color-active" aria-live="polite">Or</p>
+            </div>
+            <div class="profile-colors" id="profile-colors" role="toolbar" aria-label="Couleur du pseudo"></div>
+          </div>
+
+          <div class="profile-actions profile-actions--identity">
+            <div class="profile-quick-actions">
+              <button type="button" class="profile-quick" id="profile-open-cards">Choisir une carte</button>
+              <button type="button" class="profile-quick" id="profile-random">Aléatoire</button>
+              <button type="button" class="profile-quick" id="profile-revert">Annuler</button>
+            </div>
+          </div>
+          </div>
+
+          <div id="profile-view-cards" class="profile-view profile-view--cards hidden" role="tabpanel" aria-labelledby="profile-tab-cards" hidden>
+            <div class="profile-cards-head">
+              <p class="profile-section-label">Toutes les cartes de combat</p>
+              <div class="profile-card-filters" role="toolbar" aria-label="Filtrer les cartes">
+                <button type="button" class="profile-card-filter profile-card-filter--active" data-card-sort="equipped-first">
+                  Équipée en 1er
+                </button>
+                <button type="button" class="profile-card-filter" data-card-sort="rarity">Par rareté</button>
+              </div>
+            </div>
+            <ul class="profile-cards-grid profile-cards-grid--picker" id="profile-cards-grid"></ul>
+          </div>
+
+          <div class="profile-actions">
+            <button type="button" class="profile-save" id="profile-save">Enregistrer</button>
+            <p class="profile-toast hidden" id="profile-toast" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article
+      class="lorus-panel shop-picker-panel hidden"
+      id="shop-picker-card"
+      role="dialog"
+      aria-labelledby="shop-picker-card-title"
+      aria-modal="true"
+      hidden
+    >
+      <div class="lorus-backdrop" id="shop-picker-card-backdrop" tabindex="-1" aria-hidden="true"></div>
+      <div class="lorus-sheet">
+        <header class="lorus-head">
+          <h2 id="shop-picker-card-title">Choisir une carte</h2>
+          <p class="lorus-sub">Une clé carte sera utilisée.</p>
+          <button type="button" class="lorus-close" id="shop-picker-card-close" aria-label="Fermer">×</button>
+        </header>
+        <ul class="shop-picker-grid" id="shop-picker-card-grid" role="list"></ul>
+      </div>
+    </article>
+
+    <article
+      class="lorus-panel shop-picker-panel hidden"
+      id="shop-picker-lorus"
+      role="dialog"
+      aria-labelledby="shop-picker-lorus-title"
+      aria-modal="true"
+      hidden
+    >
+      <div class="lorus-backdrop" id="shop-picker-lorus-backdrop" tabindex="-1" aria-hidden="true"></div>
+      <div class="lorus-sheet">
+        <header class="lorus-head">
+          <h2 id="shop-picker-lorus-title">Choisir un Lorus</h2>
+          <p class="lorus-sub">Une clé Lorus sera utilisée.</p>
+          <button type="button" class="lorus-close" id="shop-picker-lorus-close" aria-label="Fermer">×</button>
+        </header>
+        <ul class="shop-picker-grid" id="shop-picker-lorus-grid" role="list"></ul>
+      </div>
+    </article>
+
+    <article
+      class="lorus-panel code-panel hidden"
+      id="code-panel"
+      role="dialog"
+      aria-labelledby="code-title"
+      aria-modal="true"
+      hidden
+    >
+      <div class="lorus-backdrop" id="code-backdrop" tabindex="-1" aria-hidden="true"></div>
+      <div class="lorus-sheet code-sheet">
+        <header class="lorus-head">
+          <h2 id="code-title">Code d'accès</h2>
+          <p class="lorus-sub">Entre le code créateur</p>
+          <button type="button" class="lorus-close" id="code-close" aria-label="Fermer">×</button>
+        </header>
+        <form id="code-form" class="code-form" autocomplete="off">
+          <label class="sr-only" for="code-input">Code</label>
+          <input
+            type="password"
+            inputmode="numeric"
+            id="code-input"
+            class="code-input"
+            maxlength="8"
+            placeholder="••••"
+            autocomplete="off"
+          />
+          <p class="code-hint hidden" id="code-hint" role="alert"></p>
+          <button type="submit" class="profile-save code-submit">Valider</button>
+        </form>
       </div>
     </article>
 

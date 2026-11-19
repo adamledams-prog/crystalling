@@ -1,8 +1,22 @@
 import { runBootSync } from "./boot-sync.js";
 import { initAppUpdateUi } from "./app-update.js";
 import { isMegaAnimPlaying, playMegaCharReveal } from "./features/lorus/mega-anim.js";
+import { getSavedPseudo, setSavedPseudo } from "./features/profile/profile-store.js";
+import { initProfileUi, updateHubProfileDisplay } from "./features/profile/profile.js";
+import { initHubCurrency } from "./features/hub/currency.js";
+import { initHubKeys } from "./features/hub/shop-keys.js";
+import { initShopUi, refreshShopUi } from "./features/hub/shop.js";
+import {
+  disableCreatorMode,
+  enableCreatorMode,
+  initCreatorCodeUi,
+  initCreatorModeFromStorage,
+  isCreatorMode,
+} from "./features/hub/creator-mode.js";
+import { isLorusUnlocked } from "./features/hub/unlocks.js";
+import { playStarterRevealIfNeeded } from "./features/hub/starter-reveal.js";
+import { closeProfilePanel, refreshProfileUnlocks } from "./features/profile/profile.js";
 
-const STORAGE_PSEUDO = "guerre_pseudo";
 const STORAGE_TUTO_STEP = "guerre_tuto_step";
 const STORAGE_INSTALLED = "guerre_installed";
 
@@ -16,8 +30,7 @@ const tutoPseudoForm = document.getElementById("tuto-pseudo");
 const pseudoInput = document.getElementById("pseudo-input");
 const screenOnboarding = document.getElementById("screen-onboarding");
 const screenHome = document.getElementById("screen-home");
-const hubName = document.getElementById("hub-name");
-const hubAvatar = document.getElementById("hub-avatar");
+const screenShop = document.getElementById("screen-shop");
 const lorusPanel = document.getElementById("lorus-panel");
 const lorusGrid = document.getElementById("lorus-grid");
 const lorusEmpty = document.getElementById("lorus-empty");
@@ -80,9 +93,30 @@ function rememberInstalled() {
   localStorage.setItem(STORAGE_INSTALLED, "1");
 }
 
-/** Tutoriel / menu : seulement dans l’app installée. */
+/** Tutoriel / menu : PWA installée ou mode créateur (code 5555). */
 function isTutoUnlocked() {
-  return isOnGuerreApp();
+  return isOnGuerreApp() || isCreatorMode();
+}
+
+function enterCreatorLobby() {
+  enableCreatorMode();
+  if (!getSavedPseudo()) {
+    setSavedPseudo("Créateur");
+    localStorage.setItem(STORAGE_TUTO_STEP, String(TUTO_STEP_PSEUDO_DONE));
+  } else if (Number(localStorage.getItem(STORAGE_TUTO_STEP) || "0") < TUTO_STEP_PSEUDO_DONE) {
+    localStorage.setItem(STORAGE_TUTO_STEP, String(TUTO_STEP_PSEUDO_DONE));
+  }
+  updateHubProfileDisplay();
+  refreshProfileUnlocks();
+  renderLorusGrid();
+  showHomeScreen();
+}
+
+function exitCreatorLobby() {
+  disableCreatorMode();
+  refreshProfileUnlocks();
+  renderLorusGrid();
+  refreshInstallUI();
 }
 
 function isIos() {
@@ -107,11 +141,6 @@ function setHint(text) {
   }
 }
 
-function getSavedPseudo() {
-  const p = localStorage.getItem(STORAGE_PSEUDO);
-  return p && p.trim() ? p.trim() : null;
-}
-
 function getTutoStep() {
   return Number(localStorage.getItem(STORAGE_TUTO_STEP) || "0");
 }
@@ -120,31 +149,49 @@ function isTutoComplete() {
   return Boolean(getSavedPseudo()) && getTutoStep() >= TUTO_STEP_PSEUDO_DONE;
 }
 
-function pseudoInitial(name) {
-  const ch = [...(name || "?")][0];
-  return ch ? ch.toUpperCase() : "?";
-}
-
 function showScreen(which) {
+  const onboarding = which === "onboarding";
   const home = which === "home";
-  document.body.classList.toggle("mode-onboarding", !home);
-  document.body.classList.toggle("mode-home", home);
+  const shop = which === "shop";
 
-  screenOnboarding.classList.toggle("hidden", home);
+  document.body.classList.toggle("mode-onboarding", onboarding);
+  document.body.classList.toggle("mode-home", home);
+  document.body.classList.toggle("mode-shop", shop);
+
+  screenOnboarding.classList.toggle("hidden", !onboarding);
+  screenOnboarding.hidden = !onboarding;
   screenHome.classList.toggle("hidden", !home);
   screenHome.hidden = !home;
+  screenShop?.classList.toggle("hidden", !shop);
+  if (screenShop) screenShop.hidden = !shop;
+}
+
+function showShopScreen() {
+  const lorusPanel = document.getElementById("lorus-panel");
+  if (lorusPanel && !lorusPanel.hidden) {
+    lorusPanel.classList.add("hidden");
+    lorusPanel.hidden = true;
+  }
+  closeProfilePanel();
+  showScreen("shop");
+  tryLockLandscape();
+  refreshShopUi();
+}
+
+function showHomeFromShop() {
+  showScreen("home");
+  tryLockLandscape();
 }
 
 function updateHomeProfile() {
-  const name = getSavedPseudo() || "Joueur";
-  hubName.textContent = name;
-  hubAvatar.textContent = pseudoInitial(name);
+  updateHubProfileDisplay();
 }
 
-function showHomeScreen() {
+async function showHomeScreen() {
   updateHomeProfile();
   showScreen("home");
   tryLockLandscape();
+  await playStarterRevealIfNeeded();
 }
 
 function showOnboardingScreen() {
@@ -231,16 +278,26 @@ function renderLorusGrid() {
   lorusEmpty.classList.add("hidden");
 
   for (const ch of chars) {
+    const lorusId = ch.id || ch.src;
+    const catalogIndex = catalogPersos.findIndex((p) => (p.id || p.src) === lorusId);
+    const unlocked = isLorusUnlocked(lorusId, catalogIndex);
+
     const li = document.createElement("li");
     li.className = "lorus-card";
-    li.tabIndex = 0;
+    if (!unlocked) li.classList.add("lorus-card--locked");
+    li.tabIndex = unlocked ? 0 : -1;
     li.setAttribute("role", "button");
-    li.setAttribute("aria-label", ch.name ? `Voir ${ch.name}` : "Voir le personnage");
+    const name = ch.name || "Personnage";
+    li.setAttribute(
+      "aria-label",
+      unlocked ? `Voir ${name}` : `${name} — verrouillé`
+    );
+    if (!unlocked) li.setAttribute("aria-disabled", "true");
 
     const thumbSrc = ch.pixelSrc || ch.src;
     const img = document.createElement("img");
     img.src = thumbSrc;
-    img.alt = ch.name || "Personnage";
+    img.alt = "";
     img.width = 96;
     img.height = 96;
     img.draggable = false;
@@ -248,34 +305,43 @@ function renderLorusGrid() {
 
     const label = document.createElement("span");
     label.className = "lorus-card-name";
-    label.textContent = ch.name || "Sans nom";
+    label.textContent = unlocked ? name : "???";
 
     if (ch.classe) li.dataset.classe = ch.classe;
 
-    const runReveal = () => {
-      if (isMegaAnimPlaying()) return;
-      const hubFelt = document.querySelector(".hub-felt");
-      if (!hubFelt) return;
+    if (!unlocked) {
+      const lock = document.createElement("span");
+      lock.className = "lorus-card-lock";
+      lock.setAttribute("aria-hidden", "true");
+      lock.textContent = "🔒";
+      li.append(img, lock, label);
+    } else {
+      const runReveal = () => {
+        if (isMegaAnimPlaying()) return;
+        const hubFelt = document.querySelector(".hub-felt");
+        if (!hubFelt) return;
 
-      playMegaCharReveal({
-        id: ch.id,
-        classe: ch.classe,
-        name: ch.name,
-        hubFelt,
-        onCloseLorus: closeLorusPanel,
-        fullSrc: ch.src,
+        playMegaCharReveal({
+          id: ch.id,
+          classe: ch.classe,
+          name: ch.name,
+          hubFelt,
+          onCloseLorus: closeLorusPanel,
+          fullSrc: ch.src,
+        });
+      };
+
+      li.addEventListener("click", runReveal);
+      li.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          runReveal();
+        }
       });
-    };
 
-    li.addEventListener("click", runReveal);
-    li.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        runReveal();
-      }
-    });
+      li.append(img, label);
+    }
 
-    li.append(img, label);
     lorusGrid.append(li);
   }
 }
@@ -407,7 +473,7 @@ tutoPseudoForm.addEventListener("submit", (e) => {
     return;
   }
 
-  localStorage.setItem(STORAGE_PSEUDO, raw);
+  setSavedPseudo(raw);
   localStorage.setItem(STORAGE_TUTO_STEP, String(TUTO_STEP_PSEUDO_DONE));
   showPseudoForm(false);
   say(MSG.tutoPseudoOk(raw));
@@ -437,16 +503,8 @@ document.querySelectorAll("[data-lorus-filter]").forEach((btn) => {
   });
 });
 
-document.getElementById("btn-magasin")?.addEventListener("click", () => {
-  /* magasin : à venir */
-});
-
 document.getElementById("btn-amis")?.addEventListener("click", () => {
   /* amis : à venir */
-});
-
-document.getElementById("hub-profile")?.addEventListener("click", () => {
-  /* profil : à venir */
 });
 
 window.addEventListener("beforeinstallprompt", (e) => {
@@ -502,7 +560,22 @@ window.addEventListener("load", async () => {
   await runBootSync();
   await loadPersosCatalog();
   await syncInstalledState();
+  initCreatorModeFromStorage();
+  if (isCreatorMode()) enterCreatorLobby();
   refreshInstallUI();
   initAppUpdateUi();
+  initProfileUi();
+  initHubCurrency();
+  initHubKeys();
+  initShopUi({
+    openShop: showShopScreen,
+    closeShop: showHomeFromShop,
+    onLorusRefresh: () => renderLorusGrid(),
+    onProfileUnlockRefresh: () => refreshProfileUnlocks(),
+  });
+  initCreatorCodeUi({
+    onEnter: enterCreatorLobby,
+    onExit: exitCreatorLobby,
+  });
   setInterval(enforceAppPresence, APP_WATCH_MS);
 });
