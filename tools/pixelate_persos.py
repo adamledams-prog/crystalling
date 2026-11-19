@@ -5,7 +5,13 @@ from pathlib import Path
 
 from PIL import Image
 
-ROOT = Path(__file__).resolve().parents[1] / "images" / "persos"
+ROOT = (
+    Path(__file__).resolve().parents[1]
+    / "frontend"
+    / "public"
+    / "images"
+    / "persos"
+)
 CELL = 96
 PIXELS = 52
 FRAMES = 8
@@ -26,6 +32,13 @@ OFFSETS = [
 PAIRS = [
     ("solaris-vaalor.png", "solaris-vaalor"),
     ("reginald-roi.png", "reginald-roi"),
+    ("gorgia.png", "gorgia"),
+    ("judas.png", "judas"),
+    ("roy.png", "roy"),
+    ("rodeo.png", "rodeo"),
+    ("sanex.png", "sanex"),
+    ("volta.png", "volta"),
+    ("herminy.png", "herminy"),
 ]
 
 

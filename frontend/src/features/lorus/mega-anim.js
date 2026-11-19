@@ -1,3 +1,5 @@
+import { placeHubCharacter } from "../hub/roster.js";
+
 const GOLD = "#e8c547";
 
 const COLORS = [GOLD, "#b57edc", "#ffd966", "#9b6fd4", "#f4f0e6"];
@@ -29,8 +31,37 @@ function getStageEls() {
     sunburst: stage.querySelector(".lorus-mega-sunburst"),
     badge: document.getElementById("lorus-mega-badge"),
     drone: document.getElementById("lorus-mega-drone"),
-    thumbsFx: document.getElementById("hub-thumbs-fx"),
+    video: document.getElementById("lorus-mega-video"),
   };
+}
+
+function resetRevealVideo(video) {
+  if (!video) return;
+  video.pause();
+  video.removeAttribute("src");
+  video.load();
+  video.hidden = true;
+  video.classList.remove("lorus-mega-video--show");
+  video.style.cssText = "";
+}
+
+function waitForVideoEnd(video) {
+  return new Promise((resolve, reject) => {
+    const done = () => {
+      video.removeEventListener("ended", onEnd);
+      video.removeEventListener("error", onErr);
+    };
+    const onEnd = () => {
+      done();
+      resolve();
+    };
+    const onErr = () => {
+      done();
+      reject(new Error("video playback failed"));
+    };
+    video.addEventListener("ended", onEnd);
+    video.addEventListener("error", onErr);
+  });
 }
 
 class ParticleField {
@@ -136,31 +167,18 @@ function clearPixelSprite(heroImg, spriteEl) {
 }
 
 function hideStage(els) {
-  const { stage, hero, heroImg, spriteEl, drone, sunburst, badge, thumbsFx, flash } = els;
+  const { stage, hero, heroImg, spriteEl, drone, sunburst, badge, flash, video } = els;
   stage.classList.remove("lorus-mega--active", "lorus-mega--brawl");
   stage.hidden = true;
   sunburst?.classList.remove("lorus-mega-sunburst--on");
   if (badge) badge.hidden = true;
-  if (thumbsFx) thumbsFx.hidden = true;
   flash?.classList.remove("lorus-mega-flash--on", "lorus-mega-flash--solaris");
   resetDrone(drone);
+  resetRevealVideo(video);
   if (hero) hero.className = "lorus-mega-hero";
+  if (hero) hero.hidden = false;
   clearPixelSprite(heroImg, spriteEl);
   heroImg?.removeAttribute("src");
-}
-
-function showHubCharacter({ src, name, extraClass = "" }) {
-  const stand = document.getElementById("hub-arena-stand");
-  const img = document.getElementById("hub-arena-char");
-  const title = document.getElementById("hub-title");
-  if (!stand || !img) return;
-
-  img.src = src;
-  img.alt = name || "";
-  img.className = `hub-arena-char ${extraClass}`.trim();
-  stand.hidden = false;
-  stand.classList.remove("hidden");
-  title?.classList.add("hub-title--behind");
 }
 
 async function playSolarisDroneThrow({ hero, heroImg, spriteEl, drone, endC, flash, field, fullSrc }) {
@@ -262,92 +280,66 @@ async function playSolarisOnHub({ hubFelt, fullSrc, name }) {
   field.stop();
   window.removeEventListener("resize", onResize);
   hideStage(els);
-  showHubCharacter({ src: fullSrc || "./images/persos/solaris-vaalor.png", name });
+  placeHubCharacter({ src: fullSrc || "./images/persos/solaris-vaalor.png", name });
 }
 
-async function playReginaldThumbsOnHub({ hubFelt, fullSrc, name }) {
+async function playReginaldScepterOnHub({ hubFelt, fullSrc, name, revealVideo }) {
   const els = getStageEls();
-  if (!els?.hero || !els.heroImg || !hubFelt) return;
+  if (!els?.stage || !hubFelt) return;
 
   const endC = getHubCenter(hubFelt);
+  const videoSrc =
+    revealVideo || "./images/persos/reginald-scepter-toss.webm";
+  const portraitSrc = fullSrc || "./images/persos/reginald-roi.png";
+
   els.stage.hidden = false;
   els.stage.classList.add("lorus-mega--active", "lorus-mega--brawl");
   els.sunburst?.classList.add("lorus-mega-sunburst--on");
+  if (els.badge) els.badge.hidden = false;
 
-  els.heroImg.src = fullSrc || "./images/persos/reginald-roi.png";
-  els.heroImg.hidden = false;
-  clearPixelSprite(els.heroImg, els.spriteEl);
-  if (els.heroName) els.heroName.textContent = name || "";
+  if (els.video) {
+    els.hero.hidden = true;
+    clearPixelSprite(els.heroImg, els.spriteEl);
+    resetRevealVideo(els.video);
 
-  els.hero.style.left = `${endC.x}px`;
-  els.hero.style.top = `${endC.y}px`;
-  els.hero.style.setProperty("--hero-scale", "0.6");
-  els.hero.className = "lorus-mega-hero lorus-mega-hero--brawl-drop";
+    els.video.hidden = false;
+    els.video.classList.add("lorus-mega-video--show");
+    els.video.style.left = `${endC.x}px`;
+    els.video.style.top = `${endC.y}px`;
+    els.video.src = videoSrc;
+    els.video.currentTime = 0;
 
-  await wait(50);
-  els.hero.style.setProperty("--hero-scale", "1");
-  els.hero.className = "lorus-mega-hero lorus-mega-hero--brawl-show";
-
-  await wait(380);
-  els.hero.classList.add("lorus-mega-hero--reginald-thumbs");
-  if (els.thumbsFx) {
-    els.thumbsFx.hidden = false;
-    els.thumbsFx.style.left = `${endC.x + 42}px`;
-    els.thumbsFx.style.top = `${endC.y - 55}px`;
-    els.thumbsFx.classList.add("hub-thumbs-fx--pop");
+    try {
+      const playPromise = els.video.play();
+      if (playPromise) await playPromise;
+      await waitForVideoEnd(els.video);
+    } catch {
+      /* réseau / decode : on retombe sur le perso statique */
+    }
+  } else {
+    await wait(1200);
   }
 
-  await wait(1200);
-  if (els.thumbsFx) {
-    els.thumbsFx.classList.remove("hub-thumbs-fx--pop");
-    els.thumbsFx.hidden = true;
-  }
+  els.flash?.classList.remove("lorus-mega-flash--on");
   els.sunburst?.classList.remove("lorus-mega-sunburst--on");
   hideStage(els);
-  showHubCharacter({
-    src: fullSrc || "./images/persos/reginald-roi.png",
-    name,
-    extraClass: "hub-arena-char--thumbs",
-  });
+  placeHubCharacter({ src: portraitSrc, name });
 }
 
 export async function playMegaCharReveal({
   id,
+  classe,
   name,
   hubFelt,
   onCloseLorus,
-  anim = "cosmic",
   fullSrc,
-  special,
 }) {
   if (playing) return;
   if (!hubFelt) hubFelt = document.querySelector(".hub-felt");
   if (!hubFelt) return;
 
   onCloseLorus?.();
-
-  const isSolaris = special === "solaris-drone-throw" || id === "solaris-vaalor";
-  const isReginald = special === "reginald-thumbs" || id === "reginald-roi" || anim === "brawl";
-
-  if (!isSolaris && !isReginald) return;
-
-  playing = true;
-
-  if (prefersReducedMotion()) {
-    showHubCharacter({ src: fullSrc, name });
-    playing = false;
-    return;
-  }
-
-  try {
-    if (isSolaris) {
-      await playSolarisOnHub({ hubFelt, fullSrc, name });
-    } else if (isReginald) {
-      await playReginaldThumbsOnHub({ hubFelt, fullSrc, name });
-    }
-  } finally {
-    playing = false;
-  }
+  placeHubCharacter({ id, classe, src: fullSrc, name });
 }
 
 export function isMegaAnimPlaying() {

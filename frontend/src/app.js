@@ -1,4 +1,5 @@
-import { isMegaAnimPlaying, playMegaCharReveal } from "./lorus-mega-anim.js";
+import { runBootSync } from "./boot-sync.js";
+import { isMegaAnimPlaying, playMegaCharReveal } from "./features/lorus/mega-anim.js";
 
 const STORAGE_PSEUDO = "guerre_pseudo";
 const STORAGE_TUTO_STEP = "guerre_tuto_step";
@@ -162,6 +163,7 @@ const STORAGE_LORUS = "guerre_lorus_chars";
 const PERSOS_CATALOG = "./images/persos/persos.json";
 
 let catalogPersos = [];
+let lorusClasseFilter = "all";
 
 function getExtraLorusCharacters() {
   try {
@@ -197,17 +199,35 @@ async function loadPersosCatalog() {
   }
 }
 
+function matchesLorusFilter(ch) {
+  if (lorusClasseFilter === "all") return true;
+  return ch.classe === lorusClasseFilter;
+}
+
+function setLorusClasseFilter(next) {
+  lorusClasseFilter = next;
+  document.querySelectorAll("[data-lorus-filter]").forEach((btn) => {
+    const active = btn.dataset.lorusFilter === next;
+    btn.classList.toggle("lorus-filter--active", active);
+    btn.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+  renderLorusGrid();
+}
+
 function renderLorusGrid() {
-  const chars = mergeLorusCharacters();
+  const chars = mergeLorusCharacters().filter(matchesLorusFilter);
   lorusGrid.querySelectorAll(".lorus-card").forEach((el) => el.remove());
 
   if (chars.length === 0) {
     lorusEmpty.classList.remove("hidden");
+    lorusEmpty.textContent =
+      lorusClasseFilter === "all"
+        ? "Aucun perso pour l’instant — ajoute-les ici bientôt."
+        : "Aucun personnage dans cette classe pour l’instant.";
     return;
   }
 
   lorusEmpty.classList.add("hidden");
-  const sheetEl = document.querySelector(".lorus-sheet");
 
   for (const ch of chars) {
     const li = document.createElement("li");
@@ -226,9 +246,10 @@ function renderLorusGrid() {
     if (ch.pixelSrc) img.classList.add("lorus-card-img--pixel");
 
     const label = document.createElement("span");
+    label.className = "lorus-card-name";
     label.textContent = ch.name || "Sans nom";
 
-    if (ch.anim) li.dataset.anim = ch.anim;
+    if (ch.classe) li.dataset.classe = ch.classe;
 
     const runReveal = () => {
       if (isMegaAnimPlaying()) return;
@@ -237,12 +258,11 @@ function renderLorusGrid() {
 
       playMegaCharReveal({
         id: ch.id,
+        classe: ch.classe,
         name: ch.name,
         hubFelt,
         onCloseLorus: closeLorusPanel,
-        anim: ch.anim || "cosmic",
         fullSrc: ch.src,
-        special: ch.special,
       });
     };
 
@@ -409,6 +429,13 @@ document.getElementById("lorus-backdrop")?.addEventListener("click", () => {
   closeLorusPanel();
 });
 
+document.querySelectorAll("[data-lorus-filter]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const next = btn.dataset.lorusFilter;
+    if (next) setLorusClasseFilter(next);
+  });
+});
+
 document.getElementById("btn-magasin")?.addEventListener("click", () => {
   /* magasin : à venir */
 });
@@ -442,15 +469,6 @@ btnInstall.addEventListener("click", async () => {
   refreshInstallUI();
 });
 
-async function registerServiceWorker() {
-  if (!("serviceWorker" in navigator)) return;
-  try {
-    await navigator.serviceWorker.register("./sw.js", { scope: "./" });
-  } catch (err) {
-    console.warn("Service worker:", err);
-  }
-}
-
 async function syncInstalledState() {
   if (isInstallRemembered() || isOnGuerreApp()) return;
   if (!("getInstalledRelatedApps" in navigator)) return;
@@ -473,16 +491,16 @@ function watchStandaloneMode() {
   else mq.addListener(onChange);
 }
 
-registerServiceWorker();
 watchStandaloneMode();
-loadPersosCatalog();
 
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") enforceAppPresence();
 });
 
 window.addEventListener("load", async () => {
+  await runBootSync();
+  await loadPersosCatalog();
   await syncInstalledState();
-  setTimeout(() => refreshInstallUI(), 400);
+  refreshInstallUI();
   setInterval(enforceAppPresence, APP_WATCH_MS);
 });

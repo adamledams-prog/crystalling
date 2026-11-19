@@ -1,0 +1,92 @@
+[
+  {
+    "id": "solaris-vaalor",
+    "name": "Solaris",
+    "src": "./images/persos/solaris-vaalor.png",
+    "pixelSrc": "./images/persos/solaris-vaalor-pixel.png",
+    "spritesheet": "./images/persos/solaris-vaalor-sheet.png",
+    "spriteFrames": 8,
+    "spriteSize": 96,
+    "classe": "attaquant"
+  },
+  {
+    "id": "reginald-roi",
+    "name": "Reginald",
+    "src": "./images/persos/reginald-roi.png",
+    "pixelSrc": "./images/persos/reginald-roi-pixel.png",
+    "spritesheet": "./images/persos/reginald-roi-sheet.png",
+    "spriteFrames": 8,
+    "spriteSize": 96,
+    "classe": "defenseur"
+  },
+  {
+    "id": "gorgia",
+    "name": "Gorgia",
+    "src": "./images/persos/gorgia.png",
+    "pixelSrc": "./images/persos/gorgia-pixel.png",
+    "spritesheet": "./images/persos/gorgia-sheet.png",
+    "spriteFrames": 8,
+    "spriteSize": 96,
+    "classe": "attaquant"
+  },
+  {
+    "id": "judas",
+    "name": "Judas",
+    "src": "./images/persos/judas.png",
+    "pixelSrc": "./images/persos/judas-pixel.png",
+    "spritesheet": "./images/persos/judas-sheet.png",
+    "spriteFrames": 8,
+    "spriteSize": 96,
+    "classe": "attaquant"
+  },
+  {
+    "id": "roy",
+    "name": "Roy",
+    "src": "./images/persos/roy.png",
+    "pixelSrc": "./images/persos/roy-pixel.png",
+    "spritesheet": "./images/persos/roy-sheet.png",
+    "spriteFrames": 8,
+    "spriteSize": 96,
+    "classe": "defenseur"
+  },
+  {
+    "id": "rodeo",
+    "name": "Rodeo",
+    "src": "./images/persos/rodeo.png",
+    "pixelSrc": "./images/persos/rodeo-pixel.png",
+    "spritesheet": "./images/persos/rodeo-sheet.png",
+    "spriteFrames": 8,
+    "spriteSize": 96,
+    "classe": "defenseur"
+  },
+  {
+    "id": "sanex",
+    "name": "Sanex",
+    "src": "./images/persos/sanex.png",
+    "pixelSrc": "./images/persos/sanex-pixel.png",
+    "spritesheet": "./images/persos/sanex-sheet.png",
+    "spriteFrames": 8,
+    "spriteSize": 96,
+    "classe": "attaquant"
+  },
+  {
+    "id": "volta",
+    "name": "Volta",
+    "src": "./images/persos/volta.png",
+    "pixelSrc": "./images/persos/volta-pixel.png",
+    "spritesheet": "./images/persos/volta-sheet.png",
+    "spriteFrames": 8,
+    "spriteSize": 96,
+    "classe": "attaquant"
+  },
+  {
+    "id": "herminy",
+    "name": "Herminy",
+    "src": "./images/persos/herminy.png",
+    "pixelSrc": "./images/persos/herminy-pixel.png",
+    "spritesheet": "./images/persos/herminy-sheet.png",
+    "spriteFrames": 8,
+    "spriteSize": 96,
+    "classe": "attaquant"
+  }
+]
