@@ -1,6 +1,5 @@
-const VERSION_URL = "./version.json";
-const VERSION_KEY = "guerre_app_version";
-const RELOAD_FLAG = "guerre_sync_reloaded";
+import { registerAndCheckSw, syncVersionOnBoot } from "./app-update.js";
+
 const BOOT_MS = 2000;
 
 const els = {
@@ -26,58 +25,6 @@ function wait(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-async function fetchAppVersion() {
-  try {
-    const res = await fetch(`${VERSION_URL}?t=${Date.now()}`, {
-      cache: "no-store",
-      headers: { Accept: "application/json" },
-    });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch {
-    return null;
-  }
-}
-
-async function registerAndUpdateSw() {
-  if (!("serviceWorker" in navigator)) return null;
-
-  try {
-    const reg = await navigator.serviceWorker.register("./sw.js", { scope: "./" });
-    await reg.update();
-    await navigator.serviceWorker.ready;
-
-    if (reg.waiting) {
-      reg.waiting.postMessage({ type: "SKIP_WAITING" });
-      await wait(120);
-    }
-
-    return reg;
-  } catch (err) {
-    console.warn("Service worker:", err);
-    return null;
-  }
-}
-
-async function syncVersion() {
-  const remote = await fetchAppVersion();
-  if (!remote?.id) return false;
-
-  const local = localStorage.getItem(VERSION_KEY);
-  const needsReload = local && local !== remote.id && !sessionStorage.getItem(RELOAD_FLAG);
-
-  localStorage.setItem(VERSION_KEY, remote.id);
-
-  if (needsReload) {
-    sessionStorage.setItem(RELOAD_FLAG, "1");
-    location.reload();
-    return true;
-  }
-
-  sessionStorage.removeItem(RELOAD_FLAG);
-  return false;
-}
-
 async function warmCaches() {
   const urls = ["./images/persos/persos.json", "./src/main.js"];
   await Promise.allSettled(
@@ -86,8 +33,8 @@ async function warmCaches() {
 }
 
 async function runBootTasks() {
-  await registerAndUpdateSw();
-  const reloaded = await syncVersion();
+  await registerAndCheckSw();
+  const reloaded = await syncVersionOnBoot();
   if (reloaded) return true;
   await warmCaches();
   return false;

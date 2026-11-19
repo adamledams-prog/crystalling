@@ -1,4 +1,4 @@
-const CACHE = "guerre-v27";
+const CACHE = "guerre-v28";
 
 const ASSETS = [
   "./",
@@ -44,7 +44,7 @@ const ASSETS = [
 ];
 
 const NETWORK_FIRST_RE =
-  /(index\.html|src\/main\.js|sw\.js|version\.json|persos\.json)(\?|$)/i;
+  /(index\.html|src\/main\.js|\/assets\/.*\.(js|css)|sw\.js|version\.json|persos\.json)(\?|$)/i;
 
 function wantsNetworkFirst(url) {
   const path = new URL(url, self.location.href).pathname;
@@ -77,6 +77,9 @@ async function cacheFirst(request) {
 
 self.addEventListener("message", (event) => {
   if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
+  if (event.data?.type === "CLEAR_CACHES") {
+    event.waitUntil(caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k)))));
+  }
 });
 
 self.addEventListener("install", (event) => {

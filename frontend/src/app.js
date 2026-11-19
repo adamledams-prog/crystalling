@@ -1,4 +1,5 @@
 import { runBootSync } from "./boot-sync.js";
+import { initAppUpdateUi } from "./app-update.js";
 import { isMegaAnimPlaying, playMegaCharReveal } from "./features/lorus/mega-anim.js";
 
 const STORAGE_PSEUDO = "guerre_pseudo";
@@ -502,5 +503,6 @@ window.addEventListener("load", async () => {
   await loadPersosCatalog();
   await syncInstalledState();
   refreshInstallUI();
+  initAppUpdateUi();
   setInterval(enforceAppPresence, APP_WATCH_MS);
 });
