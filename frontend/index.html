@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#1a5f4a" />
+    <meta name="theme-color" content="#0a0a0a" />
     <meta name="description" content="Guerre — installe l'application et joue en duel." />
     <title>Guerre</title>
     <link rel="manifest" href="manifest.json" />
@@ -31,7 +31,9 @@
 
     <div id="screen-onboarding" class="screen-onboarding">
       <main class="felt" aria-live="polite">
-        <h1 class="logo">Guerre</h1>
+        <h1 class="logo">
+          <img class="app-logo" src="icons/logo.png" width="112" height="112" alt="Guerre" />
+        </h1>
 
         <section class="robot-zone" id="robot-zone">
           <div class="bubble">
@@ -72,7 +74,9 @@
 
     <div id="screen-home" class="screen-home hidden" hidden aria-label="Menu principal">
       <div class="hub-felt">
-        <p class="hub-title" id="hub-title">Guerre</p>
+        <p class="hub-title" id="hub-title" aria-label="Guerre">
+          <img class="hub-logo" src="icons/logo.png" width="120" height="120" alt="" aria-hidden="true" />
+        </p>
 
         <div class="hub-arena" id="hub-arena" aria-live="polite">
           <div class="hub-battlefield" id="hub-battlefield">
@@ -190,7 +194,7 @@
         </div>
 
         <p id="hub-creator-badge" class="hub-creator-badge hidden" hidden aria-live="polite">
-          Mode créateur — tout débloqué · pièces illimitées
+          Mode créateur — pièces illimitées
         </p>
 
         <div class="hub-currency" id="hub-currency" aria-label="Monnaie">
@@ -201,6 +205,15 @@
         <nav class="hub-nav" aria-label="Navigation du hub">
           <div class="hub-nav-col hub-nav-col--code">
             <button type="button" class="hub-nav-btn hub-nav-btn--code" data-open-code id="btn-code">Code</button>
+            <button
+              type="button"
+              class="hub-nav-btn hub-nav-btn--reset hidden"
+              id="btn-creator-reset"
+              hidden
+              aria-label="Réinitialiser déblocages et clés"
+            >
+              Réinit.
+            </button>
             <button type="button" class="hub-nav-btn hub-nav-btn--exit hidden" id="btn-creator-exit" hidden>
               Quitter
             </button>
@@ -396,40 +409,84 @@
     </article>
 
     <article
-      class="lorus-panel shop-picker-panel hidden"
+      class="card-key-picker hidden"
       id="shop-picker-card"
       role="dialog"
       aria-labelledby="shop-picker-card-title"
       aria-modal="true"
       hidden
     >
-      <div class="lorus-backdrop" id="shop-picker-card-backdrop" tabindex="-1" aria-hidden="true"></div>
-      <div class="lorus-sheet">
-        <header class="lorus-head">
-          <h2 id="shop-picker-card-title">Choisir une carte</h2>
-          <p class="lorus-sub">Une clé carte sera utilisée.</p>
-          <button type="button" class="lorus-close" id="shop-picker-card-close" aria-label="Fermer">×</button>
-        </header>
-        <ul class="shop-picker-grid" id="shop-picker-card-grid" role="list"></ul>
+      <div class="card-key-picker__scene-host" id="shop-picker-card-scene-host" aria-hidden="true"></div>
+      <div class="card-key-picker__ui">
+        <div class="key-picker-shell">
+          <header class="card-key-picker__head">
+            <p class="card-key-picker__badge">CLÉ CARTE 🃏</p>
+            <h2 id="shop-picker-card-title">Choisis ta carte</h2>
+            <p class="card-key-picker__sub">Le déblocage et l’animation se lancent après ton choix.</p>
+            <button type="button" class="card-key-picker__close" id="shop-picker-card-close" aria-label="Fermer">
+              ×
+            </button>
+          </header>
+          <div class="key-picker-toolbar">
+            <p class="key-picker-count" id="shop-picker-card-count" aria-live="polite"></p>
+            <label class="key-picker-search">
+              <span class="visually-hidden">Rechercher une carte</span>
+              <input
+                type="search"
+                id="shop-picker-card-search"
+                placeholder="Rechercher…"
+                autocomplete="off"
+                enterkeyhint="search"
+              />
+            </label>
+          </div>
+          <div class="key-picker-grid-wrap">
+            <ul class="shop-picker-grid shop-picker-grid--card-neon" id="shop-picker-card-grid" role="list"></ul>
+            <div class="key-picker-scroll-hint" aria-hidden="true"></div>
+          </div>
+          <p class="key-picker-foot">Appuie sur une carte pour confirmer</p>
+        </div>
       </div>
     </article>
 
     <article
-      class="lorus-panel shop-picker-panel hidden"
+      class="lorus-key-picker hidden"
       id="shop-picker-lorus"
       role="dialog"
       aria-labelledby="shop-picker-lorus-title"
       aria-modal="true"
       hidden
     >
-      <div class="lorus-backdrop" id="shop-picker-lorus-backdrop" tabindex="-1" aria-hidden="true"></div>
-      <div class="lorus-sheet">
-        <header class="lorus-head">
-          <h2 id="shop-picker-lorus-title">Choisir un Lorus</h2>
-          <p class="lorus-sub">Une clé Lorus sera utilisée.</p>
-          <button type="button" class="lorus-close" id="shop-picker-lorus-close" aria-label="Fermer">×</button>
-        </header>
-        <ul class="shop-picker-grid" id="shop-picker-lorus-grid" role="list"></ul>
+      <div class="lorus-key-picker__scene-host" id="shop-picker-lorus-scene-host" aria-hidden="true"></div>
+      <div class="lorus-key-picker__ui">
+        <div class="key-picker-shell">
+          <header class="lorus-key-picker__head">
+            <p class="lorus-key-picker__badge">CLÉ LORUS 🗝</p>
+            <h2 id="shop-picker-lorus-title">Choisis ton Lorus</h2>
+            <p class="lorus-key-picker__sub">Le déblocage et l’animation se lancent après ton choix.</p>
+            <button type="button" class="lorus-key-picker__close" id="shop-picker-lorus-close" aria-label="Fermer">
+              ×
+            </button>
+          </header>
+          <div class="key-picker-toolbar">
+            <p class="key-picker-count" id="shop-picker-lorus-count" aria-live="polite"></p>
+            <label class="key-picker-search">
+              <span class="visually-hidden">Rechercher un personnage</span>
+              <input
+                type="search"
+                id="shop-picker-lorus-search"
+                placeholder="Rechercher…"
+                autocomplete="off"
+                enterkeyhint="search"
+              />
+            </label>
+          </div>
+          <div class="key-picker-grid-wrap">
+            <ul class="shop-picker-grid shop-picker-grid--lorus-neon" id="shop-picker-lorus-grid" role="list"></ul>
+            <div class="key-picker-scroll-hint" aria-hidden="true"></div>
+          </div>
+          <p class="key-picker-foot">Appuie sur un personnage pour confirmer</p>
+        </div>
       </div>
     </article>
 

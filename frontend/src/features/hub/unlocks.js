@@ -1,4 +1,7 @@
 import { hasFullUnlock } from "./creator-mode.js";
+import { resetShopKeys } from "./shop-keys.js";
+
+const STORAGE_STARTER_REVEAL = "guerre_starter_reveal_done";
 
 export const STARTER_LORUS_COUNT = 3;
 export const STARTER_CARD_COUNT = 2;
@@ -53,6 +56,14 @@ export function isBattleCardUnlocked(cardId, catalogIndex) {
   if (cardId && getExtraUnlockedCards().includes(cardId)) return true;
   if (catalogIndex >= 0 && catalogIndex < STARTER_CARD_COUNT) return true;
   return false;
+}
+
+/** 3 premiers Lorus + 2 cartes du catalogue ; clés à 0. Ne touche pas aux pièces. */
+export function resetToStarterProgress() {
+  localStorage.removeItem(STORAGE_EXTRA_LORUS);
+  localStorage.removeItem(STORAGE_EXTRA_CARDS);
+  localStorage.removeItem(STORAGE_STARTER_REVEAL);
+  resetShopKeys();
 }
 
 export function firstUnlockedBattleCardId(cards) {

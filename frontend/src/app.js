@@ -13,7 +13,10 @@ import {
   initCreatorModeFromStorage,
   isCreatorMode,
 } from "./features/hub/creator-mode.js";
-import { isLorusUnlocked } from "./features/hub/unlocks.js";
+import { isLorusUnlocked, resetToStarterProgress } from "./features/hub/unlocks.js";
+import { clearHubCharacter } from "./features/hub/roster.js";
+import { setEquippedCardId } from "./features/profile/profile-store.js";
+import { updateHubCurrencyDisplay } from "./features/hub/currency.js";
 import { playStarterRevealIfNeeded } from "./features/hub/starter-reveal.js";
 import { closeProfilePanel, refreshProfileUnlocks } from "./features/profile/profile.js";
 
@@ -55,6 +58,9 @@ const MSG = {
 
 const TUTO_STEP_PSEUDO_DONE = 1;
 const APP_WATCH_MS = 10_000;
+
+/** Écran principal actif : onboarding | home | shop */
+let activeScreen = "onboarding";
 
 function escapeHtml(text) {
   return text
@@ -119,6 +125,18 @@ function exitCreatorLobby() {
   refreshInstallUI();
 }
 
+async function handleCreatorReset() {
+  resetToStarterProgress();
+  setEquippedCardId("cubes-violet");
+  refreshProfileUnlocks();
+  updateHubProfileDisplay();
+  renderLorusGrid();
+  refreshShopUi();
+  clearHubCharacter();
+  updateHubCurrencyDisplay();
+  await playStarterRevealIfNeeded();
+}
+
 function isIos() {
   return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 }
@@ -150,6 +168,7 @@ function isTutoComplete() {
 }
 
 function showScreen(which) {
+  activeScreen = which;
   const onboarding = which === "onboarding";
   const home = which === "home";
   const shop = which === "shop";
@@ -448,6 +467,11 @@ function refreshInstallUI(opts) {
   }
 
   if (isTutoComplete()) {
+    if (activeScreen === "shop") return;
+    if (activeScreen === "home") {
+      updateHomeProfile();
+      return;
+    }
     showHomeScreen();
     return;
   }
@@ -576,6 +600,7 @@ window.addEventListener("load", async () => {
   initCreatorCodeUi({
     onEnter: enterCreatorLobby,
     onExit: exitCreatorLobby,
+    onReset: handleCreatorReset,
   });
   setInterval(enforceAppPresence, APP_WATCH_MS);
 });

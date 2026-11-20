@@ -1,0 +1,179 @@
+body.card-key-picker-open {
+  overflow: hidden;
+}
+
+.card-key-picker {
+  --card-accent: #b57edc;
+  position: fixed;
+  inset: 0;
+  z-index: 118;
+  display: grid;
+  place-items: center;
+  padding: clamp(0.5rem, 2vw, 1.25rem);
+  overflow: hidden;
+}
+
+.card-key-picker[hidden],
+.card-key-picker.hidden {
+  display: none !important;
+}
+
+.card-key-picker__scene-host {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.card-key-picker__scene.card-key-reveal {
+  position: absolute;
+  inset: 0;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: none;
+  display: block;
+  overflow: hidden;
+}
+
+.card-key-picker__scene--live .card-key-reveal__laser {
+  opacity: 0.72;
+  animation-duration: 0.34s;
+}
+
+.card-key-picker__ui {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  width: min(96vw, 46rem);
+  max-height: min(94dvh, 40rem);
+  padding: 0.35rem;
+  pointer-events: auto;
+}
+
+.card-key-picker__head {
+  position: relative;
+  text-align: center;
+  padding: 0 2rem 0.65rem;
+}
+
+.card-key-picker__badge {
+  display: inline-block;
+  margin: 0;
+  padding: 0.34rem 0.95rem;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  color: #0a0a10;
+  background: linear-gradient(90deg, #fff, var(--card-accent), #fff);
+  background-size: 200% 100%;
+  border-radius: 999px;
+  box-shadow: 0 0 18px color-mix(in srgb, var(--card-accent) 55%, transparent);
+  animation: card-key-badge-shine 0.95s linear infinite;
+}
+
+.card-key-picker__head h2 {
+  margin: 0.55rem 0 0.3rem;
+  font-size: clamp(1.25rem, 4.5vw, 1.75rem);
+  font-weight: 900;
+  color: #fff;
+  text-shadow:
+    0 0 16px color-mix(in srgb, var(--card-accent) 75%, #fff),
+    0 0 28px color-mix(in srgb, var(--card-accent) 45%, transparent);
+}
+
+.card-key-picker__sub {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+}
+
+.card-key-picker__close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2.35rem;
+  height: 2.35rem;
+  font-size: 1.45rem;
+  line-height: 1;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid color-mix(in srgb, var(--card-accent) 65%, #fff);
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--card-accent) 40%, transparent);
+}
+
+.card-key-picker__close:hover {
+  border-color: #fff;
+  background: rgba(30, 10, 40, 0.65);
+}
+
+.shop-picker-grid--card-neon {
+  flex: 1;
+  min-height: 0;
+  max-height: min(62dvh, 26rem);
+  grid-template-columns: repeat(auto-fill, minmax(5.75rem, 1fr));
+  gap: 0.65rem;
+  padding: 0.65rem;
+  margin: 0;
+  overflow: auto;
+  background: rgba(8, 4, 22, 0.55);
+  border: 1px solid color-mix(in srgb, var(--card-accent) 45%, transparent);
+  border-radius: 18px;
+  box-shadow:
+    inset 0 0 28px color-mix(in srgb, var(--card-accent) 18%, transparent),
+    0 8px 32px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+}
+
+.card-key-picker .shop-picker-btn {
+  --card-accent: var(--picker-accent, #b57edc);
+  border-color: color-mix(in srgb, var(--card-accent) 40%, transparent);
+  background: rgba(12, 6, 32, 0.62);
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.card-key-picker .shop-picker-btn:hover {
+  border-color: color-mix(in srgb, var(--card-accent) 85%, #fff);
+  background: color-mix(in srgb, var(--card-accent) 12%, transparent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--card-accent) 35%, transparent);
+  transform: scale(1.04);
+}
+
+.card-key-picker .shop-picker-img--card {
+  width: 3.5rem;
+  height: 4.85rem;
+  max-height: unset;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--card-accent, #b57edc) 45%, transparent);
+  transition: transform 0.2s ease;
+}
+
+.card-key-picker .shop-picker-btn--neon:hover .shop-picker-img--card {
+  transform: scale(1.05) rotate(-2deg);
+}
+
+.card-key-picker .shop-picker-label {
+  color: #fff;
+  font-weight: 800;
+  text-shadow: 0 0 8px color-mix(in srgb, var(--card-accent) 40%, transparent);
+}
+
+.card-key-picker .shop-picker-empty {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-key-picker__badge {
+    animation: none;
+  }
+}

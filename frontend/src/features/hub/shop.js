@@ -14,6 +14,10 @@ import {
   unlockBattleCard,
   unlockLorus,
 } from "./unlocks.js";
+import { playLorusKeyReveal, isLorusKeyRevealPlaying } from "./lorus-key-reveal.js";
+import { playCardKeyReveal, isCardKeyRevealPlaying } from "./card-key-reveal.js";
+import { closeLorusKeyPickerScene, openLorusKeyPickerScene } from "./lorus-key-picker-scene.js";
+import { closeCardKeyPickerScene, openCardKeyPickerScene } from "./card-key-picker-scene.js";
 
 const PERSOS_URL = "./images/persos/persos.json";
 const CARDS_URL = "./images/profile/battle-cards.json";
@@ -223,7 +227,7 @@ function renderShopOffers() {
   }
 }
 
-function purchaseOffer(offer) {
+async function purchaseOffer(offer) {
   if (offer.kind === "lorus_direct") {
     const idx = catalogPersos.findIndex((p) => p.id === offer.lorusId);
     if (idx >= 0 && isLorusUnlocked(offer.lorusId, idx)) {
@@ -240,6 +244,13 @@ function purchaseOffer(offer) {
   }
 
   if (offer.kind === "lorus_direct") {
+    const ch = catalogPersos.find((p) => p.id === offer.lorusId);
+    await playLorusKeyReveal({
+      name: offer.name,
+      src: ch?.src,
+      pixelSrc: ch?.pixelSrc || offer.thumb,
+      classe: offer.classe ?? ch?.classe,
+    });
     unlockLorus(offer.lorusId);
     onLorusUnlocked();
     setShopToast(`${offer.name} rejoint tes Lorus !`);
@@ -267,6 +278,8 @@ function openKeyPicker(kind) {
     renderCardPicker();
     cardPanel?.classList.remove("hidden");
     if (cardPanel) cardPanel.hidden = false;
+    openCardKeyPickerScene();
+    window.requestAnimationFrame(() => document.getElementById("shop-picker-card-search")?.focus());
   } else {
     if (getLorusKeys() < 1) {
       setShopToast("Il te faut une clé Lorus.", { error: true });
@@ -275,7 +288,67 @@ function openKeyPicker(kind) {
     renderLorusPicker();
     lorusPanel?.classList.remove("hidden");
     if (lorusPanel) lorusPanel.hidden = false;
+    openLorusKeyPickerScene();
+    window.requestAnimationFrame(() => document.getElementById("shop-picker-lorus-search")?.focus());
   }
+}
+
+const RARITY_FR = {
+  rare: "Rare",
+  epic: "Épique",
+  legendary: "Légendaire",
+};
+
+function classeLabel(classe) {
+  if (classe === "defenseur") return "Défenseur";
+  if (classe === "attaquant") return "Attaquant";
+  return "";
+}
+
+function setPickerCount(kind, count) {
+  const el = document.getElementById(
+    kind === "card" ? "shop-picker-card-count" : "shop-picker-lorus-count"
+  );
+  if (!el) return;
+  if (count === 0) {
+    el.textContent = "Aucun disponible";
+    return;
+  }
+  const word = kind === "card" ? (count > 1 ? "cartes" : "carte") : count > 1 ? "Lorus" : "Lorus";
+  el.innerHTML = `<strong>${count}</strong> ${word} disponible${count > 1 ? "s" : ""}`;
+}
+
+function resetPickerSearch(kind) {
+  const input = document.getElementById(
+    kind === "card" ? "shop-picker-card-search" : "shop-picker-lorus-search"
+  );
+  if (input) input.value = "";
+  filterPickerGrid(kind, "");
+}
+
+function filterPickerGrid(kind, query) {
+  const grid = document.getElementById(
+    kind === "card" ? "shop-picker-card-grid" : "shop-picker-lorus-grid"
+  );
+  if (!grid) return;
+  const q = query.trim().toLowerCase();
+  let visible = 0;
+  grid.querySelectorAll(".shop-picker-item[data-picker-name]").forEach((li) => {
+    const name = li.dataset.pickerName || "";
+    const hide = Boolean(q && !name.includes(q));
+    li.hidden = hide;
+    if (!hide) visible += 1;
+  });
+  const countEl = document.getElementById(
+    kind === "card" ? "shop-picker-card-count" : "shop-picker-lorus-count"
+  );
+  if (!countEl) return;
+  if (q) {
+    countEl.textContent = visible ? `${visible} résultat${visible > 1 ? "s" : ""}` : "Aucun résultat";
+    return;
+  }
+  const total = grid.querySelectorAll(".shop-picker-item[data-picker-name]").length;
+  setPickerCount(kind, total);
 }
 
 function closeKeyPicker(kind) {
@@ -285,6 +358,9 @@ function closeKeyPicker(kind) {
       : document.getElementById("shop-picker-lorus");
   panel?.classList.add("hidden");
   if (panel) panel.hidden = true;
+  if (kind === "lorus") closeLorusKeyPickerScene();
+  if (kind === "card") closeCardKeyPickerScene();
+  resetPickerSearch(kind);
 }
 
 function renderCardPicker() {
@@ -295,6 +371,10 @@ function renderCardPicker() {
   const locked = battleCards
     .map((c, i) => ({ ...c, catalogIndex: i }))
     .filter((c) => !isBattleCardUnlocked(c.id, c.catalogIndex));
+
+  locked.sort((a, b) => (a.title || "").localeCompare(b.title || "", "fr"));
+  setPickerCount("card", locked.length);
+  resetPickerSearch("card");
 
   if (!locked.length) {
     const li = document.createElement("li");
@@ -307,34 +387,64 @@ function renderCardPicker() {
   for (const card of locked) {
     const li = document.createElement("li");
     li.className = "shop-picker-item";
+    li.dataset.pickerName = (card.title || "").toLowerCase();
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "shop-picker-btn";
+    btn.className = "shop-picker-btn shop-picker-btn--neon";
+
+    if (card.accent) {
+      btn.style.setProperty("--picker-accent", card.accent);
+    }
+
+    const thumb = document.createElement("span");
+    thumb.className = "shop-picker-thumb-wrap";
 
     if (card.image) {
       const img = document.createElement("img");
       img.src = card.image;
       img.alt = "";
-      img.className = "shop-picker-img";
-      btn.append(img);
+      img.className = "shop-picker-img shop-picker-img--card";
+      thumb.append(img);
     }
+    btn.append(thumb);
 
     const label = document.createElement("span");
     label.className = "shop-picker-label";
     label.textContent = card.title;
     btn.append(label);
 
-    btn.addEventListener("click", () => {
+    if (card.rarity && RARITY_FR[card.rarity]) {
+      const chip = document.createElement("span");
+      chip.className = "shop-picker-chip";
+      chip.dataset.rarity = card.rarity;
+      chip.textContent = RARITY_FR[card.rarity];
+      btn.append(chip);
+    }
+
+    const cta = document.createElement("span");
+    cta.className = "shop-picker-cta";
+    cta.textContent = "Débloquer";
+    btn.append(cta);
+
+    btn.addEventListener("click", async () => {
+      if (isCardKeyRevealPlaying()) return;
       if (!trySpendCardKey()) {
         setShopToast("Plus de clé carte.", { error: true });
         closeKeyPicker("card");
         return;
       }
+      closeKeyPicker("card");
+      await playCardKeyReveal({
+        title: card.title,
+        subtitle: card.subtitle,
+        image: card.image,
+        accent: card.accent,
+        rarity: card.rarity,
+      });
       unlockBattleCard(card.id);
       onProfileRefresh();
       updateHubKeysDisplay();
       setShopToast(`Carte « ${card.title} » débloquée !`);
-      closeKeyPicker("card");
     });
 
     li.append(btn);
@@ -354,6 +464,10 @@ function renderLorusPicker() {
       return !isLorusUnlocked(id, p.catalogIndex);
     });
 
+  locked.sort((a, b) => (a.name || "").localeCompare(b.name || "", "fr"));
+  setPickerCount("lorus", locked.length);
+  resetPickerSearch("lorus");
+
   if (!locked.length) {
     const li = document.createElement("li");
     li.className = "shop-picker-empty";
@@ -365,33 +479,59 @@ function renderLorusPicker() {
   for (const ch of locked) {
     const li = document.createElement("li");
     li.className = "shop-picker-item";
+    li.dataset.pickerName = (ch.name || "").toLowerCase();
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "shop-picker-btn";
+    btn.className = "shop-picker-btn shop-picker-btn--neon";
+
+    const thumb = document.createElement("span");
+    thumb.className = "shop-picker-thumb-wrap";
 
     const img = document.createElement("img");
     img.src = ch.pixelSrc || ch.src;
     img.alt = "";
     img.className = "shop-picker-img shop-picker-img--lorus";
-    btn.append(img);
+    thumb.append(img);
+    btn.append(thumb);
 
     const label = document.createElement("span");
     label.className = "shop-picker-label";
     label.textContent = ch.name;
     btn.append(label);
 
-    btn.addEventListener("click", () => {
+    const cls = classeLabel(ch.classe);
+    if (cls) {
+      const chip = document.createElement("span");
+      chip.className = "shop-picker-chip shop-picker-chip--classe";
+      chip.textContent = cls;
+      btn.append(chip);
+    }
+
+    const cta = document.createElement("span");
+    cta.className = "shop-picker-cta";
+    cta.textContent = "Débloquer";
+    btn.append(cta);
+
+    btn.addEventListener("click", async () => {
+      if (isLorusKeyRevealPlaying()) return;
       if (!trySpendLorusKey()) {
         setShopToast("Plus de clé Lorus.", { error: true });
         closeKeyPicker("lorus");
         return;
       }
       const id = ch.id || ch.src;
+      closeKeyPicker("lorus");
+      await playLorusKeyReveal({
+        name: ch.name,
+        src: ch.src,
+        pixelSrc: ch.pixelSrc,
+        classe: ch.classe,
+      });
       unlockLorus(id);
       onLorusUnlocked();
       updateHubKeysDisplay();
       setShopToast(`${ch.name} rejoint tes Lorus !`);
-      closeKeyPicker("lorus");
+      renderShopOffers();
     });
 
     li.append(btn);
@@ -450,9 +590,22 @@ export function initShopUi({ openShop, closeShop, onLorusRefresh, onProfileUnloc
   });
 
   document.getElementById("shop-picker-card-close")?.addEventListener("click", () => closeKeyPicker("card"));
-  document.getElementById("shop-picker-card-backdrop")?.addEventListener("click", () => closeKeyPicker("card"));
   document.getElementById("shop-picker-lorus-close")?.addEventListener("click", () => closeKeyPicker("lorus"));
-  document.getElementById("shop-picker-lorus-backdrop")?.addEventListener("click", () => closeKeyPicker("lorus"));
+
+  document.getElementById("shop-picker-card-search")?.addEventListener("input", (e) => {
+    filterPickerGrid("card", e.target.value);
+  });
+  document.getElementById("shop-picker-lorus-search")?.addEventListener("input", (e) => {
+    filterPickerGrid("lorus", e.target.value);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    const cardPanel = document.getElementById("shop-picker-card");
+    const lorusPanel = document.getElementById("shop-picker-lorus");
+    if (cardPanel && !cardPanel.hidden) closeKeyPicker("card");
+    else if (lorusPanel && !lorusPanel.hidden) closeKeyPicker("lorus");
+  });
 
   loadCatalogs().then(() => updateHubKeysDisplay());
   startShopTicker();

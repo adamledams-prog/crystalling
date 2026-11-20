@@ -65,3 +65,8 @@ export function updateHubKeysDisplay() {
 export function initHubKeys() {
   updateHubKeysDisplay();
 }
+
+export function resetShopKeys() {
+  writeKeyCount(STORAGE_CARD_KEYS, 0);
+  writeKeyCount(STORAGE_LORUS_KEYS, 0);
+}

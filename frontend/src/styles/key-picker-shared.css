@@ -1,0 +1,263 @@
+/* Coquille commune — sélecteurs clé Lorus & clé carte */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.key-picker-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  width: 100%;
+  min-height: 0;
+  padding: 1rem 1.15rem 1.1rem;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(6, 4, 18, 0.58);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 16px 48px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(14px);
+  animation: key-picker-shell-in 0.45s cubic-bezier(0.22, 1.05, 0.32, 1) both;
+}
+
+@keyframes key-picker-shell-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.key-picker-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  justify-content: space-between;
+}
+
+.key-picker-count {
+  margin: 0;
+  padding: 0.28rem 0.65rem;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.key-picker-count strong {
+  font-weight: 900;
+  color: #fff;
+}
+
+.key-picker-search {
+  flex: 1 1 10rem;
+  min-width: 8.5rem;
+  max-width: 16rem;
+  margin-left: auto;
+}
+
+.key-picker-search input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.45rem 0.75rem 0.45rem 2rem;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #fff;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23aaa' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E")
+    no-repeat 0.55rem center,
+    rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  outline: none;
+}
+
+.key-picker-search input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.key-picker-search input:focus {
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12);
+}
+
+.key-picker-grid-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.key-picker-grid-wrap .shop-picker-grid--lorus-neon,
+.key-picker-grid-wrap .shop-picker-grid--card-neon {
+  max-height: min(58dvh, 28rem);
+}
+
+.key-picker-scroll-hint {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2.5rem;
+  pointer-events: none;
+  border-radius: 0 0 16px 16px;
+  background: linear-gradient(to top, rgba(6, 4, 18, 0.85), transparent);
+  opacity: 0.85;
+}
+
+.key-picker-foot {
+  margin: 0;
+  text-align: center;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.key-picker-item[hidden] {
+  display: none !important;
+}
+
+.shop-picker-btn--neon {
+  position: relative;
+  overflow: hidden;
+  padding: 0.55rem 0.4rem 0.5rem;
+}
+
+.shop-picker-btn--neon::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.35), transparent 45%, rgba(255, 255, 255, 0.2));
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.shop-picker-btn--neon:hover::before,
+.shop-picker-btn--neon:focus-visible::before {
+  opacity: 0.9;
+}
+
+.shop-picker-thumb-wrap {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 4.75rem;
+  padding: 0.25rem;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.shop-picker-meta {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.shop-picker-chip {
+  display: inline-block;
+  margin-top: 0.1rem;
+  padding: 0.12rem 0.45rem;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 6px;
+  color: #0a0a10;
+}
+
+.shop-picker-chip[data-rarity="rare"] {
+  background: linear-gradient(90deg, #7ec8ff, #4da3ff);
+}
+
+.shop-picker-chip[data-rarity="epic"] {
+  background: linear-gradient(90deg, #e0b8ff, #b57edc);
+}
+
+.shop-picker-chip[data-rarity="legendary"] {
+  background: linear-gradient(90deg, #ffe88a, #ff9d4d);
+}
+
+.shop-picker-chip--classe {
+  background: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.shop-picker-cta {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.72);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  border-radius: inherit;
+}
+
+.shop-picker-btn--neon:hover .shop-picker-cta,
+.shop-picker-btn--neon:focus-visible .shop-picker-cta {
+  opacity: 1;
+}
+
+.shop-picker-btn--neon:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .key-picker-shell {
+    animation: none;
+  }
+
+  .shop-picker-cta {
+    opacity: 0 !important;
+  }
+}
+
+@media (min-width: 720px) {
+  .lorus-key-picker__ui,
+  .card-key-picker__ui {
+    width: min(94vw, 58rem);
+    max-height: min(90dvh, 40rem);
+  }
+
+  .key-picker-grid-wrap .shop-picker-grid--lorus-neon {
+    grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
+  }
+
+  .key-picker-grid-wrap .shop-picker-grid--card-neon {
+    grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+  }
+}

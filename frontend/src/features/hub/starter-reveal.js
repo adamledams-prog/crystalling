@@ -1,4 +1,3 @@
-import { isCreatorMode } from "./creator-mode.js";
 import { STARTER_CARD_COUNT, STARTER_LORUS_COUNT } from "./unlocks.js";
 
 const PERSOS_URL = "./images/persos/persos.json";
@@ -182,7 +181,6 @@ async function runRevealSequence(root, { lorus, cards }) {
 export async function playStarterRevealIfNeeded() {
   if (playing) return;
   if (localStorage.getItem(STORAGE_STARTER_REVEAL) === "1") return;
-  if (isCreatorMode()) return;
 
   playing = true;
 

@@ -1,4 +1,4 @@
-const CACHE = "guerre-v43";
+const CACHE = "guerre-v44";
 
 const ASSETS = [
   "./",
@@ -53,6 +53,7 @@ const ASSETS = [
   "./images/persos/reginald-scepter-toss.webm",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
+  "./icons/logo.png",
 ];
 
 const NETWORK_FIRST_RE =

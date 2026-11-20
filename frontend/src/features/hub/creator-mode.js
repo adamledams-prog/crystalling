@@ -23,9 +23,9 @@ export function disableCreatorMode() {
   updateHubCurrencyDisplay();
 }
 
-/** Futur système de déblocage : tout est accessible en mode créateur. */
+/** Déblocage gratuit (hors mode créateur normal — pièces ∞ seulement). */
 export function hasFullUnlock() {
-  return isCreatorMode();
+  return false;
 }
 
 /** Déblocage fin : utiliser unlocks.js (Lorus, cartes). */
@@ -51,6 +51,11 @@ export function syncCreatorNavUi() {
     exitBtn.hidden = !on;
     exitBtn.classList.toggle("hidden", !on);
   }
+  const resetBtn = document.getElementById("btn-creator-reset");
+  if (resetBtn) {
+    resetBtn.hidden = !on;
+    resetBtn.classList.toggle("hidden", !on);
+  }
 }
 
 export function initCreatorModeFromStorage() {
@@ -63,7 +68,7 @@ export function initCreatorModeFromStorage() {
   syncCreatorNavUi();
 }
 
-export function initCreatorCodeUi({ onEnter, onExit } = {}) {
+export function initCreatorCodeUi({ onEnter, onExit, onReset } = {}) {
   const panel = document.getElementById("code-panel");
   const backdrop = document.getElementById("code-backdrop");
   const input = document.getElementById("code-input");
@@ -112,5 +117,14 @@ export function initCreatorCodeUi({ onEnter, onExit } = {}) {
 
   document.getElementById("btn-creator-exit")?.addEventListener("click", () => {
     onExit?.();
+  });
+
+  document.getElementById("btn-creator-reset")?.addEventListener("click", () => {
+    if (!isCreatorMode()) return;
+    const ok = confirm(
+      "Revenir aux 3 Lorus de départ, 2 cartes de combat et 0 clé ?\nLes pièces restent illimitées."
+    );
+    if (!ok) return;
+    onReset?.();
   });
 }

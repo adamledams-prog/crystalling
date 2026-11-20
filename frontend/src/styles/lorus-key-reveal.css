@@ -1,0 +1,860 @@
+body.lorus-key-reveal-open {
+  overflow: hidden;
+}
+
+.lorus-key-reveal {
+  position: fixed;
+  inset: 0;
+  z-index: 128;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.22s ease;
+}
+
+.lorus-key-reveal:not([hidden]) {
+  visibility: visible;
+}
+
+.lorus-key-reveal--on {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lorus-key-reveal--on .lorus-key-reveal__core {
+  animation: lorus-key-core-shake 2.1s ease-in-out;
+}
+
+.lorus-key-reveal--peak .lorus-key-reveal__core {
+  animation: lorus-key-core-shake-strong 0.52s ease-in-out;
+}
+
+.lorus-key-reveal--peak .lorus-key-reveal__bg,
+.lorus-key-reveal--shock .lorus-key-reveal__bg {
+  animation: lorus-key-bg-hit 0.45s ease-out;
+}
+
+@keyframes lorus-key-bg-hit {
+  0% {
+    filter: saturate(1.3) brightness(1.35);
+    transform: scale(1.04);
+  }
+  100% {
+    filter: saturate(1.2) brightness(1);
+    transform: scale(1);
+  }
+}
+
+.lorus-key-reveal__shockwave {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  overflow: visible;
+  width: 4rem;
+  height: 4rem;
+  margin: -2rem 0 0 -2rem;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    0 0 24px rgba(0, 255, 255, 0.7),
+    inset 0 0 20px rgba(255, 0, 255, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.lorus-key-reveal--shock .lorus-key-reveal__shockwave {
+  animation: reveal-shockwave 0.72s ease-out forwards;
+}
+
+.lorus-key-reveal--shock .lorus-key-reveal__shockwave::after {
+  content: "";
+  position: absolute;
+  inset: 18%;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 0, 0.75);
+  box-shadow: 0 0 16px rgba(255, 0, 255, 0.6);
+  animation: reveal-shockwave-inner 0.55s ease-out 0.08s forwards;
+  opacity: 0;
+}
+
+@keyframes reveal-shockwave-inner {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.8);
+  }
+}
+
+.lorus-key-reveal__streaks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+}
+
+.lorus-key-reveal--fly .lorus-key-reveal__streaks {
+  opacity: 1;
+}
+
+.lorus-key-reveal__streak {
+  --streak-i: 0;
+  position: absolute;
+  top: calc(18% + var(--streak-i) * 8%);
+  left: -30%;
+  width: 40%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  opacity: 0;
+}
+
+.lorus-key-reveal--fly .lorus-key-reveal__streak {
+  animation: reveal-streak 0.75s ease-out forwards;
+  animation-delay: calc(var(--streak-i) * 0.04s);
+}
+
+@keyframes reveal-shockwave {
+  0% {
+    opacity: 0.95;
+    transform: scale(0.15);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(14);
+  }
+}
+
+@keyframes reveal-streak {
+  0% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  30% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(180vw);
+  }
+}
+
+.lorus-key-reveal--hold .lorus-key-reveal__hero-wrap {
+  animation: lorus-key-idle-float 1.1s ease-in-out infinite alternate;
+}
+
+.lorus-key-reveal--out {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s ease;
+  animation: none;
+}
+
+@keyframes lorus-key-core-shake {
+  0%,
+  30%,
+  100% {
+    transform: translate(0, 0);
+  }
+  34% {
+    transform: translate(-4px, 2px);
+  }
+  38% {
+    transform: translate(5px, -3px);
+  }
+  72% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes lorus-key-core-shake-strong {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(-6px, 4px) scale(1.02);
+  }
+  50% {
+    transform: translate(6px, -3px) scale(1.02);
+  }
+  75% {
+    transform: translate(-3px, 2px);
+  }
+}
+
+@keyframes lorus-key-idle-float {
+  to {
+    transform: translateY(-6px) scale(1.02);
+  }
+}
+
+.lorus-key-reveal__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 35%, rgba(0, 0, 0, 0.75) 100%);
+  pointer-events: none;
+  z-index: 4;
+}
+
+.lorus-key-reveal__bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 25%, #ff00ff 0%, transparent 42%),
+    radial-gradient(circle at 72% 30%, #00f5ff 0%, transparent 38%),
+    radial-gradient(circle at 50% 78%, #ffe600 0%, transparent 45%),
+    radial-gradient(circle at 18% 70%, #7bff00 0%, transparent 40%),
+    linear-gradient(135deg, #0a0014 0%, #120a2e 35%, #001a1f 70%, #0a0a0a 100%);
+  animation: lorus-key-bg-shift 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes lorus-key-bg-shift {
+  from {
+    filter: hue-rotate(0deg) saturate(1.2) brightness(1);
+  }
+  to {
+    filter: hue-rotate(48deg) saturate(1.45) brightness(1.12);
+  }
+}
+
+.lorus-key-reveal__rays {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(200vmax, 1400px);
+  height: min(200vmax, 1400px);
+  margin: -50% 0 0 -50%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(255, 0, 200, 0.62) 0deg 5deg,
+    transparent 5deg 10deg,
+    rgba(0, 255, 255, 0.58) 10deg 15deg,
+    transparent 15deg 20deg,
+    rgba(255, 230, 0, 0.52) 20deg 25deg,
+    transparent 25deg 30deg
+  );
+  mask-image: radial-gradient(circle, #000 6%, transparent 58%);
+  opacity: 0.92;
+  mix-blend-mode: screen;
+  animation: lorus-key-rays-spin 2.2s linear infinite;
+}
+
+.lorus-key-reveal__rays--rev {
+  opacity: 0.55;
+  animation-direction: reverse;
+  animation-duration: 3.4s;
+  filter: blur(1px);
+}
+
+@keyframes lorus-key-rays-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.lorus-key-reveal__lasers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.lorus-key-reveal__laser {
+  --lorus-laser-i: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 150vmax;
+  margin-left: -3px;
+  margin-top: -75vmax;
+  transform-origin: 50% 100%;
+  transform: rotate(calc(var(--lorus-laser-i) * (360deg / 18)));
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(0, 255, 255, 0.2) 12%,
+    rgba(0, 255, 255, 0.98) 42%,
+    rgba(255, 0, 255, 0.92) 52%,
+    rgba(255, 255, 0, 0.75) 68%,
+    transparent 94%
+  );
+  opacity: 0;
+  filter: blur(0.35px) drop-shadow(0 0 12px rgba(0, 255, 255, 0.95))
+    drop-shadow(0 0 18px rgba(255, 0, 255, 0.65));
+  animation: lorus-key-laser-pulse 0.38s ease-in-out infinite;
+  animation-delay: calc(var(--lorus-laser-i) * -0.05s);
+}
+
+@keyframes lorus-key-laser-pulse {
+  0%,
+  100% {
+    opacity: 0.12;
+    transform: rotate(calc(var(--lorus-laser-i) * (360deg / 18))) scaleY(0.7);
+  }
+  50% {
+    opacity: 1;
+    transform: rotate(calc(var(--lorus-laser-i) * (360deg / 18))) scaleY(1.08);
+  }
+}
+
+.lorus-key-reveal__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.lorus-key-reveal__flash {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: radial-gradient(circle at 50% 48%, rgba(255, 255, 255, 0.95), transparent 55%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.lorus-key-reveal__flash--prime {
+  animation: lorus-key-flash-prime 0.4s ease-out forwards;
+}
+
+.lorus-key-reveal__flash--hit {
+  animation: lorus-key-flash-bim 0.55s ease-out forwards;
+}
+
+@keyframes lorus-key-flash-prime {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes lorus-key-flash-bim {
+  0% {
+    opacity: 1;
+  }
+  40% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.lorus-key-reveal__shine {
+  position: absolute;
+  inset: -5%;
+  z-index: 3;
+  border-radius: 50%;
+  background: linear-gradient(
+    120deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.85) 50%,
+    transparent 62%
+  );
+  transform: translateX(-120%) skewX(-12deg);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.lorus-key-reveal--landed .lorus-key-reveal__shine {
+  animation: lorus-key-shine-sweep 0.75s ease-out forwards;
+}
+
+.lorus-key-reveal--hold .lorus-key-reveal__shine {
+  animation: lorus-key-shine-sweep-hold 0.58s ease-out forwards;
+}
+
+@keyframes lorus-key-shine-sweep {
+  to {
+    transform: translateX(120%) skewX(-12deg);
+    opacity: 0.9;
+  }
+}
+
+@keyframes lorus-key-shine-sweep-hold {
+  from {
+    transform: translateX(-120%) skewX(-12deg);
+    opacity: 0.75;
+  }
+  to {
+    transform: translateX(120%) skewX(-12deg);
+    opacity: 0.95;
+  }
+}
+
+.lorus-key-reveal__stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.lorus-key-reveal__star {
+  --star-i: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  margin: -5px;
+  opacity: 0;
+  transform: rotate(0deg) scale(0);
+  background: linear-gradient(135deg, #fff 0%, #0ff 45%, #f0f 100%);
+  clip-path: polygon(
+    50% 0%,
+    62% 35%,
+    98% 35%,
+    68% 57%,
+    79% 94%,
+    50% 72%,
+    21% 94%,
+    32% 57%,
+    2% 35%,
+    38% 35%
+  );
+  filter: drop-shadow(0 0 6px #0ff) drop-shadow(0 0 10px #f0f);
+}
+
+.lorus-key-reveal--shock .lorus-key-reveal__star {
+  animation: lorus-key-star-burst 0.68s cubic-bezier(0.15, 0.85, 0.25, 1) forwards;
+  animation-delay: calc(var(--star-i) * 0.028s);
+}
+
+@keyframes lorus-key-star-burst {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--star-angle, 0deg)) translateY(0) scale(0.15);
+  }
+  28% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--star-angle, 0deg)) translateY(calc(-1 * var(--star-dist, 72px))) scale(1.12);
+  }
+}
+
+.lorus-key-reveal--hold .lorus-key-reveal__name {
+  animation: lorus-key-name-pop 0.42s cubic-bezier(0.18, 1.15, 0.28, 1);
+}
+
+@keyframes lorus-key-name-pop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.lorus-key-reveal--peak .lorus-key-reveal__lasers {
+  opacity: 1;
+  filter: brightness(1.35) saturate(1.4);
+  transition: filter 0.2s ease;
+}
+
+.lorus-key-reveal--fly .lorus-key-reveal__flash {
+  opacity: 0;
+  animation: lorus-key-flash-depart 0.32s ease-out forwards;
+}
+
+@keyframes lorus-key-flash-depart {
+  0% {
+    opacity: 0.45;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.lorus-key-reveal__scan {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 255, 0.03) 2px,
+    rgba(0, 255, 255, 0.03) 4px
+  );
+  opacity: 0.6;
+  mix-blend-mode: overlay;
+}
+
+.lorus-key-reveal--on .lorus-key-reveal__scan {
+  animation: lorus-key-scan-drift 3s linear infinite;
+}
+
+@keyframes lorus-key-scan-drift {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(8px);
+  }
+}
+
+.lorus-key-reveal__core {
+  position: relative;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  text-align: center;
+  padding: 1rem;
+  will-change: transform, opacity;
+}
+
+.lorus-key-reveal--fly-right .lorus-key-reveal__core {
+  animation: lorus-key-fly-right 0.86s cubic-bezier(0.28, 0.82, 0.22, 1) forwards;
+}
+
+.lorus-key-reveal--fly-right .lorus-key-reveal__bg,
+.lorus-key-reveal--fly-right .lorus-key-reveal__vignette {
+  opacity: 0.45;
+  transition: opacity 0.5s ease;
+}
+
+.lorus-key-reveal--fly-right .lorus-key-reveal__badge,
+.lorus-key-reveal--fly-right .lorus-key-reveal__name,
+.lorus-key-reveal--fly-right .lorus-key-reveal__classe {
+  animation: lorus-key-label-fade 0.35s ease forwards;
+}
+
+.lorus-key-reveal--fly-right .lorus-key-reveal__rays,
+.lorus-key-reveal--fly-right .lorus-key-reveal__lasers {
+  animation-duration: 1.2s;
+  opacity: 0.35;
+  transition: opacity 0.5s ease;
+}
+
+@keyframes lorus-key-fly-right {
+  0% {
+    transform: translateX(0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(calc(38vw + 2rem)) scale(0.58) rotate(0deg);
+    opacity: 0.28;
+  }
+}
+
+@keyframes lorus-key-label-fade {
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.lorus-key-reveal__hero-wrap {
+  position: relative;
+  width: min(44vw, 300px);
+  height: min(44vw, 300px);
+  display: grid;
+  place-items: center;
+}
+
+.lorus-key-reveal__ring {
+  --lorus-ring-i: 0;
+  position: absolute;
+  inset: calc(-8% - var(--lorus-ring-i) * 6%);
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: rgba(0, 255, 255, 0.85);
+  border-right-color: rgba(255, 0, 255, 0.65);
+  opacity: 0;
+  transform: scale(0.3);
+}
+
+.lorus-key-reveal--on .lorus-key-reveal__ring {
+  animation: lorus-key-ring-burst 2.2s ease-out forwards;
+  animation-delay: calc(0.15s + var(--lorus-ring-i) * 0.12s);
+}
+
+@keyframes lorus-key-ring-burst {
+  0% {
+    opacity: 0;
+    transform: scale(0.25) rotate(0deg);
+  }
+  25% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0.15;
+    transform: scale(1.35) rotate(calc(120deg + var(--lorus-ring-i) * 90deg));
+  }
+}
+
+.lorus-key-reveal__hero-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -22%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.7), rgba(0, 255, 255, 0.25) 40%, transparent 70%);
+  opacity: 0;
+  animation: lorus-key-aura 2.2s ease-out forwards;
+}
+
+.lorus-key-reveal__hero-wrap--landed::before {
+  animation: lorus-key-aura-pulse 0.6s ease-out forwards;
+}
+
+@keyframes lorus-key-aura-pulse {
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0.4;
+    transform: scale(1.08);
+  }
+}
+
+.lorus-key-reveal__chroma {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.lorus-key-reveal__chroma::before,
+.lorus-key-reveal__chroma::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--lorus-chroma-src);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.lorus-key-reveal--on .lorus-key-reveal__chroma::before {
+  filter: hue-rotate(-35deg) saturate(2);
+  opacity: 0.45;
+  transform: translate(-4px, 0);
+  animation: lorus-key-chroma-a 2.2s ease-out forwards;
+}
+
+.lorus-key-reveal--on .lorus-key-reveal__chroma::after {
+  filter: hue-rotate(35deg) saturate(2);
+  opacity: 0.4;
+  transform: translate(4px, 0);
+  animation: lorus-key-chroma-b 2.2s ease-out forwards;
+}
+
+@keyframes lorus-key-chroma-a {
+  0% {
+    opacity: 0;
+    transform: translate(-12px, 0) scale(0.05);
+  }
+  100% {
+    opacity: 0.35;
+    transform: translate(-3px, 0) scale(1);
+  }
+}
+
+@keyframes lorus-key-chroma-b {
+  0% {
+    opacity: 0;
+    transform: translate(12px, 0) scale(0.05);
+  }
+  100% {
+    opacity: 0.32;
+    transform: translate(3px, 0) scale(1);
+  }
+}
+
+.lorus-key-reveal__hero {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scale(0.04) rotate(-260deg);
+  filter: drop-shadow(0 0 22px rgba(0, 255, 255, 0.95))
+    drop-shadow(0 0 34px rgba(255, 0, 255, 0.8));
+  will-change: transform, filter;
+}
+
+.lorus-key-reveal__hero--pixel {
+  image-rendering: pixelated;
+}
+
+.lorus-key-reveal--on .lorus-key-reveal__hero {
+  animation: lorus-key-hero-ultra 2.1s cubic-bezier(0.16, 0.92, 0.2, 1) forwards;
+}
+
+@keyframes lorus-key-hero-ultra {
+  0% {
+    transform: scale(0.03) rotate(-280deg);
+    filter: drop-shadow(0 0 10px #fff) brightness(2.2) saturate(1.4);
+  }
+  18% {
+    transform: scale(0.12) rotate(-120deg);
+    filter: drop-shadow(0 0 28px #0ff) brightness(1.7);
+  }
+  45% {
+    transform: scale(0.55) rotate(200deg);
+    filter: drop-shadow(0 0 32px #f0f) drop-shadow(0 0 40px #ff0) brightness(1.35);
+  }
+  72% {
+    transform: scale(0.92) rotate(300deg);
+    filter: drop-shadow(0 0 26px #0ff) brightness(1.15);
+  }
+  82% {
+    transform: scale(1.14) rotate(348deg);
+  }
+  92% {
+    transform: scale(0.97) rotate(372deg);
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+    filter: drop-shadow(0 0 22px rgba(0, 255, 255, 0.9))
+      drop-shadow(0 0 36px rgba(255, 80, 255, 0.75)) brightness(1);
+  }
+}
+
+@keyframes lorus-key-aura {
+  0% {
+    opacity: 0;
+    transform: scale(0.15);
+  }
+  35% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0.38;
+    transform: scale(1.22);
+  }
+}
+
+.lorus-key-reveal__badge {
+  margin: 0.4rem 0 0;
+  padding: 0.35rem 1rem;
+  font-size: clamp(0.72rem, 2.8vw, 0.92rem);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  color: #0a0a0a;
+  background: linear-gradient(90deg, #0ff, #ff0, #f0f, #0ff);
+  background-size: 240% 100%;
+  border-radius: 999px;
+  box-shadow:
+    0 0 16px rgba(0, 255, 255, 0.65),
+    0 0 24px rgba(255, 0, 255, 0.45);
+  opacity: 0;
+  transform: translateY(10px) scale(0.92);
+}
+
+.lorus-key-reveal--on .lorus-key-reveal__badge {
+  animation:
+    lorus-key-badge-shine 1s linear infinite,
+    lorus-key-badge-in 0.55s cubic-bezier(0.22, 1.1, 0.32, 1) 1.45s forwards;
+}
+
+@keyframes lorus-key-badge-in {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes lorus-key-badge-shine {
+  to {
+    background-position: 240% 0;
+  }
+}
+
+.lorus-key-reveal__name {
+  margin: 0.2rem 0 0;
+  font-size: clamp(1.4rem, 5.2vw, 2.1rem);
+  font-weight: 900;
+  color: #fff;
+  text-shadow:
+    0 0 14px rgba(0, 255, 255, 0.95),
+    0 0 28px rgba(255, 0, 255, 0.7),
+    0 0 42px rgba(255, 255, 0, 0.35),
+    0 2px 4px rgba(0, 0, 0, 0.85);
+  opacity: 0;
+}
+
+.lorus-key-reveal--on .lorus-key-reveal__name {
+  animation: lorus-key-name-in 0.5s cubic-bezier(0.22, 1.05, 0.32, 1) 1.65s forwards;
+}
+
+.lorus-key-reveal__classe {
+  margin: 0;
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.88);
+  opacity: 0;
+}
+
+.lorus-key-reveal--on .lorus-key-reveal__classe {
+  animation: lorus-key-name-in 0.45s ease 1.82s forwards;
+}
+
+@keyframes lorus-key-name-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lorus-key-reveal--on,
+  .lorus-key-reveal--peak {
+    animation: none;
+  }
+
+  .lorus-key-reveal__rays,
+  .lorus-key-reveal__laser,
+  .lorus-key-reveal__bg,
+  .lorus-key-reveal__scan {
+    animation: none;
+  }
+
+  .lorus-key-reveal--on .lorus-key-reveal__hero {
+    animation: lorus-key-hero-reduced 0.55s ease forwards;
+  }
+
+  @keyframes lorus-key-hero-reduced {
+    from {
+      transform: scale(0.25) rotate(-90deg);
+    }
+    to {
+      transform: scale(1) rotate(0deg);
+    }
+  }
+}

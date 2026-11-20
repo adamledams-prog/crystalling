@@ -24,6 +24,10 @@ body {
 
 body.boot-loading .screen-onboarding,
 body.boot-loading .screen-home,
+body.boot-loading .lorus-key-reveal,
+body.boot-loading .lorus-key-picker,
+body.boot-loading .card-key-reveal,
+body.boot-loading .card-key-picker,
 body.boot-loading .screen-shop,
 body.boot-loading .lorus-panel,
 body.boot-loading .profile-panel,
@@ -101,12 +105,18 @@ body.mode-tour {
 }
 
 .logo {
-  margin: 0 0 1.5rem;
-  font-size: 2.25rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  color: var(--gold);
-  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+  margin: 0 0 1.25rem;
+  line-height: 0;
+}
+
+.app-logo {
+  display: inline-block;
+  width: clamp(5.5rem, 22vw, 7rem);
+  height: auto;
+  border-radius: 22%;
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.45),
+    0 0 24px rgba(45, 212, 168, 0.25);
 }
 
 .robot-zone {
@@ -306,14 +316,24 @@ body.mode-tour {
   left: 50%;
   transform: translate(-50%, -50%);
   margin: 0;
-  font-size: clamp(1.75rem, 6vw, 3rem);
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  color: rgba(232, 197, 71, 0.18);
+  line-height: 0;
   pointer-events: none;
   user-select: none;
   z-index: 1;
   transition: opacity 0.35s ease;
+}
+
+.hub-logo {
+  display: block;
+  width: clamp(4.5rem, 14vw, 6.75rem);
+  height: auto;
+  opacity: 0.22;
+  filter: drop-shadow(0 0 18px rgba(45, 212, 168, 0.35));
+  transition: opacity 0.35s ease;
+}
+
+.hub-title--behind .hub-logo {
+  opacity: 0.12;
 }
 
 .hub-title--behind {
@@ -823,6 +843,13 @@ body.mode-creator .hub-creator-badge:not(.hidden) {
   color: #1a1a10;
   background: linear-gradient(180deg, #ffb8b8, #ff6b6b);
   border-color: rgba(255, 255, 255, 0.45);
+}
+
+.hub-nav-btn--reset {
+  color: #1a1208;
+  background: linear-gradient(180deg, #ffe08a, #e8a317);
+  border-color: rgba(255, 255, 255, 0.4);
+  font-size: 0.76rem;
 }
 
 .code-entry-btn {
