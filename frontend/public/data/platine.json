@@ -1,0 +1,16 @@
+{
+  "name": "Platine",
+  "tiers": [
+    { "id": "plat-20", "stars": 20, "type": "coins", "amount": 50, "label": "50 pièces" },
+    { "id": "plat-50", "stars": 50, "type": "coins", "amount": 50, "label": "50 pièces" },
+    {
+      "id": "plat-75",
+      "stars": 75,
+      "type": "lorus",
+      "lorusId": "herminy",
+      "label": "Herminy",
+      "thumb": "./images/persos/herminy-pixel.png"
+    },
+    { "id": "plat-100", "stars": 100, "type": "coins", "amount": 40, "label": "40 pièces" }
+  ]
+}

@@ -13,6 +13,7 @@ import {
   firstUnlockedBattleCardId,
   isBattleCardUnlocked,
 } from "../hub/unlocks.js";
+import { refreshProfileFriendCode } from "../friends/friends.js";
 
 const CARDS_URL = "./images/profile/battle-cards.json";
 const RARITY_ORDER = { legendary: 0, epic: 1, rare: 2, common: 3 };
@@ -609,6 +610,7 @@ export async function openProfilePanel() {
   renderCardsGrid({ scrollEquipped: true });
   renderPreview();
   updateNameMeta();
+  refreshProfileFriendCode();
 
   els.panel?.classList.remove("hidden");
   els.panel.hidden = false;

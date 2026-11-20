@@ -1,4 +1,4 @@
-const CACHE = "guerre-v44";
+const CACHE = "guerre-v54";
 
 const ASSETS = [
   "./",
@@ -6,7 +6,7 @@ const ASSETS = [
   "./src/main.js",
   "./manifest.json",
   "./version.json",
-  "./images/load-screen.png",
+  "./images/load-screen.jpg",
   "./images/hub-battle-bg.png",
   "./images/shop-bg.png",
   "./images/tour-roi.png",

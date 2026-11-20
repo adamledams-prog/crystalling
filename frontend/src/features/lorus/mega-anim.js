@@ -168,15 +168,29 @@ function clearPixelSprite(heroImg, spriteEl) {
 
 function hideStage(els) {
   const { stage, hero, heroImg, spriteEl, drone, sunburst, badge, flash, video } = els;
-  stage.classList.remove("lorus-mega--active", "lorus-mega--brawl");
+  stage.classList.remove(
+    "lorus-mega--active",
+    "lorus-mega--brawl",
+    "lorus-mega--multicolor",
+    "lorus-mega--epic",
+    "lorus-mega--platine"
+  );
+  sunburst?.classList.remove("lorus-mega-sunburst--rainbow", "lorus-mega-sunburst--platine");
+  flash?.classList.remove("lorus-mega-flash--rainbow", "lorus-mega-flash--platine");
   stage.hidden = true;
   sunburst?.classList.remove("lorus-mega-sunburst--on");
-  if (badge) badge.hidden = true;
+  if (badge) {
+    badge.hidden = true;
+    badge.classList.remove("lorus-mega-badge--platine");
+    badge.textContent = "BRAWLER !";
+  }
   flash?.classList.remove("lorus-mega-flash--on", "lorus-mega-flash--solaris");
   resetDrone(drone);
   resetRevealVideo(video);
   if (hero) hero.className = "lorus-mega-hero";
   if (hero) hero.hidden = false;
+  hero?.classList.remove("lorus-mega-hero--sanex-finale");
+  heroImg?.classList.remove("lorus-mega-img--sanex-finale", "sanex-finale-motion");
   clearPixelSprite(heroImg, spriteEl);
   heroImg?.removeAttribute("src");
 }
@@ -326,6 +340,185 @@ async function playReginaldScepterOnHub({ hubFelt, fullSrc, name, revealVideo })
   placeHubCharacter({ src: portraitSrc, name });
 }
 
+const SANEX_HUB_INTRO_MS = 420;
+const SANEX_HUB_FINALE_MS = 1920;
+const SANEX_HUB_LAND_MS = 560;
+
+async function playSanexOnHub({ id, classe, hubFelt, fullSrc, name }) {
+  if (prefersReducedMotion()) {
+    placeHubCharacter({ id, classe, src: fullSrc, name });
+    return;
+  }
+
+  const els = getStageEls();
+  if (!els?.stage || !els.hero || !els.heroImg || !els.canvas || !hubFelt) {
+    placeHubCharacter({ id, classe, src: fullSrc, name });
+    return;
+  }
+
+  const endC = getHubCenter(hubFelt);
+  els.stage.hidden = false;
+  els.stage.classList.add("lorus-mega--active", "lorus-mega--multicolor");
+  els.sunburst?.classList.add("lorus-mega-sunburst--on", "lorus-mega-sunburst--rainbow");
+
+  if (els.heroName) els.heroName.textContent = name || "";
+  els.hero.style.left = `${endC.x}px`;
+  els.hero.style.top = `${endC.y}px`;
+  els.hero.className = "lorus-mega-hero lorus-mega-hero--show lorus-mega-hero--sanex-finale";
+
+  clearPixelSprite(els.heroImg, els.spriteEl);
+  els.heroImg.src = fullSrc || "";
+  els.heroImg.hidden = false;
+  els.heroImg.classList.add("lorus-mega-img--sanex-finale", "sanex-finale-motion");
+
+  const field = new ParticleField(els.canvas);
+  field.resize();
+  field.burst(52);
+  field.start();
+
+  await wait(SANEX_HUB_INTRO_MS);
+  els.sunburst?.classList.remove("lorus-mega-sunburst--on", "lorus-mega-sunburst--rainbow");
+
+  const landTimer = setTimeout(() => {
+    field.burst(64);
+    try {
+      navigator.vibrate?.([8, 24, 12, 40]);
+    } catch {
+      /* ignore */
+    }
+  }, SANEX_HUB_LAND_MS);
+
+  await wait(SANEX_HUB_FINALE_MS);
+  clearTimeout(landTimer);
+
+  els.hero.classList.remove("lorus-mega-hero--sanex-finale");
+  els.heroImg.classList.remove("lorus-mega-img--sanex-finale", "sanex-finale-motion");
+  field.stop();
+  hideStage(els);
+  placeHubCharacter({ id, classe, src: fullSrc, name });
+}
+
+async function playMegalorusHubFlash({ id, classe, hubFelt, fullSrc, name }) {
+  if (prefersReducedMotion()) {
+    placeHubCharacter({ id, classe, src: fullSrc, name });
+    return;
+  }
+
+  const els = getStageEls();
+  if (!els?.stage || !els.hero || !els.heroImg || !els.canvas || !hubFelt) {
+    placeHubCharacter({ id, classe, src: fullSrc, name });
+    return;
+  }
+
+  const endC = getHubCenter(hubFelt);
+  els.stage.hidden = false;
+  els.stage.classList.add("lorus-mega--active", "lorus-mega--multicolor");
+  els.sunburst?.classList.add("lorus-mega-sunburst--on", "lorus-mega-sunburst--rainbow");
+
+  if (els.heroName) els.heroName.textContent = name || "";
+  els.hero.style.left = `${endC.x}px`;
+  els.hero.style.top = `${endC.y}px`;
+  els.hero.className = "lorus-mega-hero lorus-mega-hero--show";
+
+  clearPixelSprite(els.heroImg, els.spriteEl);
+  els.heroImg.src = fullSrc || "";
+  els.heroImg.hidden = false;
+
+  const field = new ParticleField(els.canvas);
+  field.resize();
+  field.burst(64);
+  field.start();
+
+  els.flash?.classList.add("lorus-mega-flash--on", "lorus-mega-flash--rainbow");
+  await wait(700);
+  els.flash?.classList.remove("lorus-mega-flash--on", "lorus-mega-flash--rainbow");
+  els.sunburst?.classList.remove("lorus-mega-sunburst--on", "lorus-mega-sunburst--rainbow");
+
+  field.stop();
+  hideStage(els);
+  placeHubCharacter({ id, classe, src: fullSrc, name });
+}
+
+async function playPlatineLorusHubFlash({ id, classe, hubFelt, fullSrc, name }) {
+  if (prefersReducedMotion()) {
+    placeHubCharacter({ id, classe, src: fullSrc, name });
+    return;
+  }
+
+  const els = getStageEls();
+  if (!els?.stage || !els.hero || !els.heroImg || !els.canvas || !hubFelt) {
+    placeHubCharacter({ id, classe, src: fullSrc, name });
+    return;
+  }
+
+  const endC = getHubCenter(hubFelt);
+  els.stage.hidden = false;
+  els.stage.classList.add("lorus-mega--active", "lorus-mega--platine");
+  els.sunburst?.classList.add("lorus-mega-sunburst--on", "lorus-mega-sunburst--platine");
+
+  if (els.badge) {
+    els.badge.textContent = "PLATINE LORUS";
+    els.badge.hidden = false;
+    els.badge.classList.add("lorus-mega-badge--platine");
+  }
+  if (els.heroName) els.heroName.textContent = name || "";
+
+  els.hero.style.left = `${endC.x}px`;
+  els.hero.style.top = `${endC.y}px`;
+  els.hero.className = "lorus-mega-hero lorus-mega-hero--platine-land";
+
+  clearPixelSprite(els.heroImg, els.spriteEl);
+  els.heroImg.src = fullSrc || "";
+  els.heroImg.hidden = false;
+
+  const field = new ParticleField(els.canvas);
+  field.resize();
+  field.burst(56);
+  field.start();
+
+  els.flash?.classList.add("lorus-mega-flash--on", "lorus-mega-flash--platine");
+  await wait(520);
+  els.flash?.classList.remove("lorus-mega-flash--on", "lorus-mega-flash--platine");
+  await wait(380);
+  els.sunburst?.classList.remove("lorus-mega-sunburst--on", "lorus-mega-sunburst--platine");
+
+  field.stop();
+  hideStage(els);
+  placeHubCharacter({ id, classe, src: fullSrc, name });
+}
+
+async function playEpicHubFlash({ id, classe, hubFelt, fullSrc, name }) {
+  if (prefersReducedMotion()) {
+    placeHubCharacter({ id, classe, src: fullSrc, name });
+    return;
+  }
+
+  const els = getStageEls();
+  if (!els?.stage || !els.hero || !els.heroImg || !hubFelt) {
+    placeHubCharacter({ id, classe, src: fullSrc, name });
+    return;
+  }
+
+  const endC = getHubCenter(hubFelt);
+  els.stage.hidden = false;
+  els.stage.classList.add("lorus-mega--active", "lorus-mega--epic");
+  els.sunburst?.classList.add("lorus-mega-sunburst--on");
+
+  if (els.heroName) els.heroName.textContent = name || "";
+  els.hero.style.left = `${endC.x}px`;
+  els.hero.style.top = `${endC.y}px`;
+  els.hero.className = "lorus-mega-hero lorus-mega-hero--show";
+
+  clearPixelSprite(els.heroImg, els.spriteEl);
+  els.heroImg.src = fullSrc || "";
+  els.heroImg.hidden = false;
+
+  await wait(480);
+  els.sunburst?.classList.remove("lorus-mega-sunburst--on");
+  hideStage(els);
+  placeHubCharacter({ id, classe, src: fullSrc, name });
+}
+
 export async function playMegaCharReveal({
   id,
   classe,
@@ -333,13 +526,30 @@ export async function playMegaCharReveal({
   hubFelt,
   onCloseLorus,
   fullSrc,
+  rarity,
 }) {
   if (playing) return;
   if (!hubFelt) hubFelt = document.querySelector(".hub-felt");
   if (!hubFelt) return;
 
-  onCloseLorus?.();
-  placeHubCharacter({ id, classe, src: fullSrc, name });
+  playing = true;
+  try {
+    onCloseLorus?.();
+
+    if (rarity === "megalorus" && id === "sanex") {
+      await playSanexOnHub({ id, classe, hubFelt, fullSrc, name });
+    } else if (rarity === "megalorus") {
+      await playMegalorusHubFlash({ id, classe, hubFelt, fullSrc, name });
+    } else if (rarity === "platinelorus") {
+      await playPlatineLorusHubFlash({ id, classe, hubFelt, fullSrc, name });
+    } else if (rarity === "epic") {
+      await playEpicHubFlash({ id, classe, hubFelt, fullSrc, name });
+    } else {
+      placeHubCharacter({ id, classe, src: fullSrc, name });
+    }
+  } finally {
+    playing = false;
+  }
 }
 
 export function isMegaAnimPlaying() {

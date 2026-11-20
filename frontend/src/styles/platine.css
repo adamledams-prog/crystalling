@@ -1,0 +1,311 @@
+body.mode-platine {
+  overflow: hidden;
+}
+
+.screen-platine {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: max(0.35rem, env(safe-area-inset-top)) 0.65rem max(0.35rem, env(safe-area-inset-bottom));
+  background: radial-gradient(ellipse at 50% 0%, #1a2838 0%, #0a0e16 55%, #050508 100%);
+}
+
+.screen-platine.hidden,
+.screen-platine[hidden] {
+  display: none !important;
+}
+
+.platine-layout {
+  display: flex;
+  align-items: stretch;
+  gap: clamp(0.5rem, 2vw, 1.25rem);
+  width: min(100%, 960px);
+  height: min(100%, 100dvh);
+  max-height: 100dvh;
+}
+
+.platine-aside {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: clamp(5.5rem, 18vw, 8.5rem);
+  gap: 0.4rem;
+  text-align: center;
+}
+
+.platine-back {
+  align-self: stretch;
+  padding: 0.4rem 0.55rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--cream);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.platine-back:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.platine-hero {
+  display: block;
+  width: clamp(4.75rem, 17vw, 7rem);
+  height: auto;
+  max-height: clamp(4.75rem, 17vw, 7rem);
+  object-fit: contain;
+  image-rendering: pixelated;
+  padding: 0.35rem;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #e8eef5, #9aa8b8 35%, #d4dce6 70%, #f5f8fc);
+  border: 3px solid rgba(255, 255, 255, 0.65);
+  box-shadow:
+    inset 0 2px 8px rgba(255, 255, 255, 0.35),
+    0 8px 24px rgba(0, 0, 0, 0.45);
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
+}
+
+.platine-title {
+  margin: 0;
+  font-size: clamp(0.9rem, 2.4vw, 1.15rem);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #d8e4f0;
+}
+
+.platine-sub {
+  margin: 0;
+  font-size: 0.68rem;
+  line-height: 1.3;
+  color: rgba(220, 228, 240, 0.75);
+}
+
+.platine-road {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.65rem 0.75rem;
+  background: linear-gradient(165deg, rgba(40, 48, 58, 0.95), rgba(18, 22, 30, 0.98));
+  border: 2px solid rgba(200, 210, 225, 0.35);
+  border-radius: 18px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 10px 32px rgba(0, 0, 0, 0.45);
+}
+
+.platine-road-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.platine-road-head h2 {
+  margin: 0;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  font-weight: 900;
+  color: #e2eaf4;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.platine-next-hint {
+  margin: 0.2rem 0 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(210, 220, 235, 0.88);
+}
+
+.platine-star-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #1a1a22;
+  background: linear-gradient(180deg, #f0f4f8, #b8c4d4);
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  border-radius: 999px;
+}
+
+.platine-debug {
+  padding: 0.3rem 0.55rem;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #1a322c;
+  background: #9dff6a;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+body.mode-creator .platine-debug:not(.hidden) {
+  display: inline-block;
+}
+
+.platine-progress-track {
+  height: 0.55rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.platine-progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #9aa8b8, #e8eef5, #ffe566);
+  transition: width 0.35s ease;
+}
+
+.platine-track {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  gap: 0.65rem;
+  margin: 0;
+  padding: 0.35rem 0.15rem 0.15rem;
+  list-style: none;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+
+.platine-node {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  width: clamp(4.75rem, 14vw, 6.5rem);
+}
+
+.platine-node-stars {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: rgba(230, 236, 245, 0.92);
+}
+
+.platine-node-bubble {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  width: 100%;
+  min-height: 4.75rem;
+  padding: 0.45rem 0.35rem;
+  font: inherit;
+  color: #fff;
+  background: linear-gradient(180deg, #4a5568, #2a3344);
+  border: 2px solid rgba(180, 195, 215, 0.45);
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+  transition:
+    transform 0.15s ease,
+    filter 0.15s ease;
+}
+
+.platine-node--ready .platine-node-bubble {
+  border-color: #e8eef5;
+  box-shadow:
+    0 0 0 2px rgba(232, 238, 245, 0.35),
+    0 8px 18px rgba(0, 0, 0, 0.4);
+  animation: platine-pulse 1.6s ease-in-out infinite;
+}
+
+.platine-node--ready .platine-node-bubble:not(:disabled):hover {
+  transform: translateY(-2px) scale(1.03);
+}
+
+.platine-node--claimed .platine-node-bubble {
+  opacity: 0.45;
+  cursor: default;
+  filter: grayscale(0.45);
+}
+
+.platine-node--locked .platine-node-bubble {
+  opacity: 0.72;
+  cursor: not-allowed;
+  background: linear-gradient(180deg, #2a3548, #1a2030);
+  border-color: rgba(120, 130, 150, 0.45);
+}
+
+.platine-node-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.platine-node-portrait {
+  display: block;
+  width: 2.75rem;
+  height: 2.75rem;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.45));
+}
+
+.platine-node-label {
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.15;
+}
+
+.platine-toast {
+  margin: 0;
+  padding: 0.45rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #1a1408;
+  background: linear-gradient(90deg, #e8eef5, #ffe566);
+  border-radius: 10px;
+}
+
+.platine-toast.hidden {
+  display: none;
+}
+
+@keyframes platine-pulse {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.12);
+  }
+}
+
+@media (max-width: 640px) {
+  .platine-layout {
+    flex-direction: column;
+  }
+
+  .platine-aside {
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .platine-back {
+    flex: 0 0 auto;
+    width: auto;
+  }
+}

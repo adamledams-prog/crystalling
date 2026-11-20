@@ -2,6 +2,7 @@
   {
     "id": "solaris-vaalor",
     "name": "Solaris",
+    "rarity": "epic",
     "src": "./images/persos/solaris-vaalor.png",
     "pixelSrc": "./images/persos/solaris-vaalor-pixel.png",
     "spritesheet": "./images/persos/solaris-vaalor-sheet.png",
@@ -12,6 +13,7 @@
   {
     "id": "reginald-roi",
     "name": "Reginald",
+    "rarity": "epic",
     "src": "./images/persos/reginald-roi.png",
     "pixelSrc": "./images/persos/reginald-roi-pixel.png",
     "spritesheet": "./images/persos/reginald-roi-sheet.png",
@@ -22,6 +24,7 @@
   {
     "id": "gorgia",
     "name": "Gorgia",
+    "rarity": "epic",
     "src": "./images/persos/gorgia.png",
     "pixelSrc": "./images/persos/gorgia-pixel.png",
     "spritesheet": "./images/persos/gorgia-sheet.png",
@@ -32,6 +35,7 @@
   {
     "id": "judas",
     "name": "Judas",
+    "rarity": "epic",
     "src": "./images/persos/judas.png",
     "pixelSrc": "./images/persos/judas-pixel.png",
     "spritesheet": "./images/persos/judas-sheet.png",
@@ -42,6 +46,7 @@
   {
     "id": "roy",
     "name": "Roy",
+    "rarity": "platinelorus",
     "src": "./images/persos/roy.png",
     "pixelSrc": "./images/persos/roy-pixel.png",
     "spritesheet": "./images/persos/roy-sheet.png",
@@ -52,6 +57,7 @@
   {
     "id": "rodeo",
     "name": "Rodeo",
+    "rarity": "epic",
     "src": "./images/persos/rodeo.png",
     "pixelSrc": "./images/persos/rodeo-pixel.png",
     "spritesheet": "./images/persos/rodeo-sheet.png",
@@ -62,6 +68,7 @@
   {
     "id": "sanex",
     "name": "Sanex",
+    "rarity": "megalorus",
     "src": "./images/persos/sanex.png",
     "pixelSrc": "./images/persos/sanex-pixel.png",
     "spritesheet": "./images/persos/sanex-sheet.png",
@@ -72,6 +79,7 @@
   {
     "id": "volta",
     "name": "Volta",
+    "rarity": "megalorus",
     "src": "./images/persos/volta.png",
     "pixelSrc": "./images/persos/volta-pixel.png",
     "spritesheet": "./images/persos/volta-sheet.png",
@@ -82,6 +90,7 @@
   {
     "id": "herminy",
     "name": "Herminy",
+    "rarity": "platinelorus",
     "src": "./images/persos/herminy.png",
     "pixelSrc": "./images/persos/herminy-pixel.png",
     "spritesheet": "./images/persos/herminy-sheet.png",

@@ -203,32 +203,137 @@
         </div>
 
         <nav class="hub-nav" aria-label="Navigation du hub">
-          <div class="hub-nav-col hub-nav-col--code">
-            <button type="button" class="hub-nav-btn hub-nav-btn--code" data-open-code id="btn-code">Code</button>
-            <button
-              type="button"
-              class="hub-nav-btn hub-nav-btn--reset hidden"
-              id="btn-creator-reset"
-              hidden
-              aria-label="Réinitialiser déblocages et clés"
-            >
-              Réinit.
-            </button>
-            <button type="button" class="hub-nav-btn hub-nav-btn--exit hidden" id="btn-creator-exit" hidden>
-              Quitter
-            </button>
+          <div class="hub-nav-group hub-nav-group--left">
+            <div class="hub-nav-col hub-nav-col--code">
+              <button type="button" class="hub-nav-btn hub-nav-btn--code" data-open-code id="btn-code">Code</button>
+              <button
+                type="button"
+                class="hub-nav-btn hub-nav-btn--reset hidden"
+                id="btn-creator-reset"
+                hidden
+                aria-label="Réinitialiser déblocages et clés"
+              >
+                Réinit.
+              </button>
+              <button type="button" class="hub-nav-btn hub-nav-btn--exit hidden" id="btn-creator-exit" hidden>
+                Quitter
+              </button>
+            </div>
+            <div class="hub-nav-row" aria-label="Ressources">
+              <button type="button" class="hub-nav-btn hub-nav-btn--platine" id="btn-platine">Platine</button>
+              <button type="button" class="hub-nav-btn hub-nav-btn--magasin" id="btn-magasin">Magasin</button>
+              <button type="button" class="hub-nav-btn hub-nav-btn--lorus" id="btn-lorus">Lorus</button>
+            </div>
           </div>
-          <div class="hub-nav-col">
-            <button type="button" class="hub-nav-btn hub-nav-btn--magasin" id="btn-magasin">Magasin</button>
-            <button type="button" class="hub-nav-btn hub-nav-btn--lorus" id="btn-lorus">Lorus</button>
-          </div>
-          <div class="hub-nav-col">
+          <div class="hub-nav-col hub-nav-col--play">
             <button type="button" class="hub-nav-btn hub-nav-btn--amis" id="btn-amis">Amis</button>
             <button type="button" class="hub-nav-btn hub-nav-btn--jouer" id="btn-jouer">Jouer</button>
           </div>
         </nav>
       </div>
     </div>
+
+    <div id="screen-platine" class="screen-platine hidden" hidden aria-label="Platine — récompenses">
+      <div class="platine-layout">
+        <aside class="platine-aside">
+          <button type="button" class="platine-back" id="platine-back">← Hub</button>
+          <img
+            class="platine-hero"
+            src="./images/persos/herminy-pixel.png"
+            alt="Herminy"
+            width="112"
+            height="112"
+            draggable="false"
+          />
+          <h1 class="platine-title">Platine</h1>
+          <p class="platine-sub">Débloque des ressources avec tes points étoile.</p>
+        </aside>
+
+        <section class="platine-road" aria-labelledby="platine-road-name">
+          <header class="platine-road-head">
+            <div>
+              <h2 id="platine-road-name">Platine</h2>
+              <p class="platine-next-hint" id="platine-next-hint" aria-live="polite"></p>
+            </div>
+            <div class="platine-star-pill" aria-label="Points étoile">
+              <span aria-hidden="true">★</span>
+              <span id="platine-stars">0</span>
+            </div>
+            <button
+              type="button"
+              class="platine-debug hidden"
+              id="platine-debug-stars"
+              hidden
+              aria-label="Mode créateur : +10 points étoile"
+            >
+              +10 ★
+            </button>
+          </header>
+
+          <div class="platine-progress">
+            <div class="platine-progress-track">
+              <div id="platine-progress-fill" class="platine-progress-fill"></div>
+            </div>
+          </div>
+
+          <ul class="platine-track" id="platine-track" aria-label="Paliers Platine"></ul>
+
+          <p id="platine-toast" class="platine-toast hidden" role="status" aria-live="polite" hidden></p>
+        </section>
+      </div>
+    </div>
+
+    <div id="screen-friends" class="screen-friends hidden" hidden aria-label="Amis">
+      <div class="friends-layout">
+        <aside class="friends-aside">
+          <button type="button" class="friends-back" id="friends-back">← Hub</button>
+          <h1 class="friends-title">Amis</h1>
+          <p class="friends-sub">Ta liste d’amis sur cet appareil — ajoute-les avec leur code à 4 chiffres.</p>
+          <button type="button" class="friends-add-btn" id="friends-add-btn">Ajouter un ami</button>
+        </aside>
+        <section class="friends-main" aria-labelledby="friends-list-title">
+          <h2 id="friends-list-title" class="friends-main-head">Mes amis</h2>
+          <ul class="friends-list" id="friends-list" role="list"></ul>
+          <p id="friends-empty" class="friends-empty hidden" hidden>
+            Personne pour l’instant. Touche « Ajouter un ami » et entre le code affiché dans son profil.
+          </p>
+          <p id="friends-toast" class="friends-toast hidden" role="status" aria-live="polite" hidden></p>
+        </section>
+      </div>
+    </div>
+
+    <article
+      class="lorus-panel friends-add-panel hidden"
+      id="friends-add-panel"
+      role="dialog"
+      aria-labelledby="friends-add-title"
+      aria-modal="true"
+      hidden
+    >
+      <div class="lorus-backdrop" id="friends-add-backdrop" tabindex="-1" aria-hidden="true"></div>
+      <div class="lorus-sheet friends-add-sheet">
+        <header class="lorus-head">
+          <h2 id="friends-add-title">Ajouter un ami</h2>
+          <p class="lorus-sub">Code à 4 chiffres</p>
+          <button type="button" class="lorus-close" id="friends-add-close" aria-label="Fermer">×</button>
+        </header>
+        <form id="friends-add-form" class="friends-add-form" autocomplete="off">
+          <label class="sr-only" for="friends-add-input">Code ami</label>
+          <input
+            type="text"
+            inputmode="numeric"
+            id="friends-add-input"
+            class="friends-add-input"
+            maxlength="4"
+            pattern="[0-9]*"
+            placeholder="0000"
+            autocomplete="off"
+          />
+          <p class="friends-add-hint hidden" id="friends-add-hint" role="alert"></p>
+          <button type="submit" class="profile-save friends-add-submit">Ajouter</button>
+        </form>
+      </div>
+    </article>
 
     <div id="screen-shop" class="screen-shop hidden" hidden aria-label="Magasin">
       <div class="shop-layout">
@@ -368,6 +473,17 @@
               autocomplete="nickname"
             />
             <p class="profile-name-hint hidden" id="profile-name-hint" role="alert"></p>
+          </div>
+
+          <div class="profile-friend-code-block">
+            <p class="profile-section-label">Ton code ami</p>
+            <div class="profile-friend-code-row">
+              <p class="profile-friend-code" id="profile-friend-code" aria-live="polite">0000</p>
+              <button type="button" class="profile-friend-code-copy" id="profile-copy-friend-code">
+                Copier
+              </button>
+            </div>
+            <p class="profile-friend-code-hint">Donne ce code à tes amis pour qu’ils t’ajoutent.</p>
           </div>
 
           <div class="profile-colors-block">

@@ -252,6 +252,21 @@
   color: rgba(244, 240, 230, 0.72);
 }
 
+.shop-offer-tag--megalorus {
+  font-weight: 800;
+  color: #c8e8ff;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.shop-offer--megalorus {
+  border-color: rgba(120, 200, 255, 0.45);
+  background: linear-gradient(165deg, rgba(40, 90, 140, 0.35), rgba(20, 30, 60, 0.5));
+  box-shadow:
+    0 0 18px rgba(80, 160, 255, 0.25),
+    0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
 .shop-offer-foot {
   display: flex;
   flex-direction: column;

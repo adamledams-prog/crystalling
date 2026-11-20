@@ -15,9 +15,17 @@ import {
   unlockLorus,
 } from "./unlocks.js";
 import { playLorusKeyReveal, isLorusKeyRevealPlaying } from "./lorus-key-reveal.js";
+import { playMegaLorusReveal, isMegaLorusRevealPlaying } from "./mega-lorus-reveal.js";
 import { playCardKeyReveal, isCardKeyRevealPlaying } from "./card-key-reveal.js";
 import { closeLorusKeyPickerScene, openLorusKeyPickerScene } from "./lorus-key-picker-scene.js";
 import { closeCardKeyPickerScene, openCardKeyPickerScene } from "./card-key-picker-scene.js";
+import {
+  LORUS_RARITY,
+  LORUS_RARITY_FR,
+  canAppearInShopRotation,
+  canPickWithLorusKey,
+  getLorusRarity,
+} from "./lorus-rarity.js";
 
 const PERSOS_URL = "./images/persos/persos.json";
 const CARDS_URL = "./images/profile/battle-cards.json";
@@ -25,9 +33,13 @@ const ROTATION_MS = 10 * 60 * 1000;
 
 const PRICES = {
   lorusDirect: 1000,
+  lorusMega: 2000,
   cardKey: 10,
   lorusKey: 1100,
 };
+
+/** 1 chance sur 15 qu’un Megalorus apparaisse dans le magasin (par rotation). */
+const MEGA_LORUS_SHOP_ODDS = 15;
 
 let catalogPersos = [];
 let battleCards = [];
@@ -61,17 +73,48 @@ async function loadCatalogs() {
   if (!Array.isArray(battleCards)) battleCards = [];
 }
 
-function lockedPersoPool() {
+function lockedStandardLorusPool() {
   return catalogPersos
     .map((p, i) => ({ ...p, catalogIndex: i }))
     .filter((p) => {
       const id = p.id || p.src;
-      return id && !isLorusUnlocked(id, p.catalogIndex);
+      if (!id || !canAppearInShopRotation(p)) return false;
+      return !isLorusUnlocked(id, p.catalogIndex);
     });
 }
 
+function lockedMegaLorusPool() {
+  return catalogPersos
+    .map((p, i) => ({ ...p, catalogIndex: i }))
+    .filter((p) => {
+      const id = p.id || p.src;
+      if (!id || getLorusRarity(p) !== LORUS_RARITY.MEGA) return false;
+      return !isLorusUnlocked(id, p.catalogIndex);
+    });
+}
+
+function pickMegaLorusOffer(slot) {
+  const pool = lockedMegaLorusPool();
+  if (!pool.length) return null;
+
+  const rand = mulberry32(slot * 0xca11ab1e + 0x15);
+  if (Math.floor(rand() * MEGA_LORUS_SHOP_ODDS) !== 0) return null;
+
+  const ch = pool[Math.floor(rand() * pool.length)];
+  return {
+    kind: "lorus_mega",
+    id: `lorus-mega-${ch.id}-${slot}`,
+    lorusId: ch.id,
+    name: ch.name,
+    classe: ch.classe,
+    thumb: ch.pixelSrc || ch.src,
+    rarity: LORUS_RARITY.MEGA,
+    price: PRICES.lorusMega,
+  };
+}
+
 function pickRotatingLorus(slot) {
-  const pool = lockedPersoPool();
+  const pool = lockedStandardLorusPool();
   if (!pool.length) return [];
 
   const rand = mulberry32(slot * 0x9e3779b1 + 0x51ed);
@@ -87,6 +130,9 @@ export function getShopOffers(now = Date.now()) {
   const slot = shopSlotIndex(now);
   const rotating = pickRotatingLorus(slot);
   const offers = [];
+
+  const mega = pickMegaLorusOffer(slot);
+  if (mega) offers.push(mega);
 
   for (const ch of rotating) {
     offers.push({
@@ -169,7 +215,7 @@ function renderShopOffers() {
     const head = document.createElement("div");
     head.className = "shop-offer-head";
 
-    if (offer.kind === "lorus_direct") {
+    if (offer.kind === "lorus_direct" || offer.kind === "lorus_mega") {
       const img = document.createElement("img");
       img.className = "shop-offer-thumb";
       img.src = offer.thumb;
@@ -192,6 +238,13 @@ function renderShopOffers() {
     title.className = "shop-offer-title";
     title.textContent = offer.name;
     meta.append(title);
+
+    if (offer.rarity === LORUS_RARITY.MEGA) {
+      const tag = document.createElement("p");
+      tag.className = "shop-offer-tag shop-offer-tag--megalorus";
+      tag.textContent = LORUS_RARITY_FR.megalorus;
+      meta.append(tag);
+    }
 
     if (offer.classe) {
       const tag = document.createElement("p");
@@ -222,13 +275,17 @@ function renderShopOffers() {
     btn.addEventListener("click", () => purchaseOffer(offer));
     foot.append(btn);
 
+    if (offer.kind === "lorus_mega") {
+      card.classList.add("shop-offer--megalorus");
+    }
+
     card.append(head, meta, foot);
     grid.append(card);
   }
 }
 
 async function purchaseOffer(offer) {
-  if (offer.kind === "lorus_direct") {
+  if (offer.kind === "lorus_direct" || offer.kind === "lorus_mega") {
     const idx = catalogPersos.findIndex((p) => p.id === offer.lorusId);
     if (idx >= 0 && isLorusUnlocked(offer.lorusId, idx)) {
       setShopToast("Tu possèdes déjà ce personnage.", { error: true });
@@ -243,17 +300,25 @@ async function purchaseOffer(offer) {
     return;
   }
 
-  if (offer.kind === "lorus_direct") {
+  if (offer.kind === "lorus_direct" || offer.kind === "lorus_mega") {
     const ch = catalogPersos.find((p) => p.id === offer.lorusId);
-    await playLorusKeyReveal({
+    const revealPayload = {
+      id: offer.lorusId,
       name: offer.name,
       src: ch?.src,
       pixelSrc: ch?.pixelSrc || offer.thumb,
       classe: offer.classe ?? ch?.classe,
-    });
+    };
+    if (offer.kind === "lorus_mega") {
+      await playMegaLorusReveal(revealPayload);
+    } else {
+      await playLorusKeyReveal(revealPayload);
+    }
     unlockLorus(offer.lorusId);
     onLorusUnlocked();
-    setShopToast(`${offer.name} rejoint tes Lorus !`);
+    const extra =
+      offer.kind === "lorus_mega" ? ` — ${LORUS_RARITY_FR.megalorus} !` : " !";
+    setShopToast(`${offer.name} rejoint tes Lorus${extra}`);
   } else if (offer.kind === "card_key") {
     addCardKeys(1);
     setShopToast("Clé carte ajoutée — choisis ta récompense !");
@@ -461,6 +526,7 @@ function renderLorusPicker() {
     .map((p, i) => ({ ...p, catalogIndex: i }))
     .filter((p) => {
       const id = p.id || p.src;
+      if (!id || !canPickWithLorusKey(p)) return false;
       return !isLorusUnlocked(id, p.catalogIndex);
     });
 
@@ -499,6 +565,16 @@ function renderLorusPicker() {
     label.textContent = ch.name;
     btn.append(label);
 
+    const rarity = getLorusRarity(ch);
+    const rarityLabel = LORUS_RARITY_FR[rarity];
+    if (rarityLabel) {
+      const rChip = document.createElement("span");
+      rChip.className = "shop-picker-chip";
+      rChip.dataset.lorusRarity = rarity;
+      rChip.textContent = rarityLabel;
+      btn.append(rChip);
+    }
+
     const cls = classeLabel(ch.classe);
     if (cls) {
       const chip = document.createElement("span");
@@ -513,7 +589,7 @@ function renderLorusPicker() {
     btn.append(cta);
 
     btn.addEventListener("click", async () => {
-      if (isLorusKeyRevealPlaying()) return;
+      if (isLorusKeyRevealPlaying() || isMegaLorusRevealPlaying()) return;
       if (!trySpendLorusKey()) {
         setShopToast("Plus de clé Lorus.", { error: true });
         closeKeyPicker("lorus");
@@ -521,12 +597,18 @@ function renderLorusPicker() {
       }
       const id = ch.id || ch.src;
       closeKeyPicker("lorus");
-      await playLorusKeyReveal({
+      const revealPayload = {
+        id: ch.id,
         name: ch.name,
         src: ch.src,
         pixelSrc: ch.pixelSrc,
         classe: ch.classe,
-      });
+      };
+      if (getLorusRarity(ch) === LORUS_RARITY.MEGA) {
+        await playMegaLorusReveal(revealPayload);
+      } else {
+        await playLorusKeyReveal(revealPayload);
+      }
       unlockLorus(id);
       onLorusUnlocked();
       updateHubKeysDisplay();

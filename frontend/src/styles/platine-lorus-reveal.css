@@ -1,0 +1,266 @@
+body.platine-lorus-reveal-open {
+  overflow: hidden;
+}
+
+.platine-lorus-reveal {
+  position: fixed;
+  inset: 0;
+  z-index: 129;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.22s ease;
+}
+
+.platine-lorus-reveal:not([hidden]) {
+  visibility: visible;
+}
+
+.platine-lorus-reveal--on {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.platine-lorus-reveal__shimmer {
+  position: absolute;
+  inset: -15%;
+  background: linear-gradient(
+    145deg,
+    #1a2838 0%,
+    #3d4a68 22%,
+    #dcd6ff 42%,
+    #8a8aae 58%,
+    #2a3d52 78%,
+    #141c28 100%
+  );
+  opacity: 0.94;
+}
+
+.platine-lorus-reveal--on .platine-lorus-reveal__shimmer {
+  background: linear-gradient(
+    135deg,
+    #e8e0f8,
+    #f5f2ff,
+    #c9c4e8,
+    #b8a8d8,
+    #dcd6ff,
+    #9a96b8
+  );
+  background-size: 280% 280%;
+  animation: platine-lorus-shimmer 4.5s ease infinite;
+}
+
+@keyframes platine-lorus-shimmer {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.platine-lorus-reveal__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.platine-lorus-reveal__stars {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.platine-lorus-reveal__star-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(9rem + var(--platine-ring-i) * 2.8rem);
+  height: calc(9rem + var(--platine-ring-i) * 2.8rem);
+  margin: calc(-0.5 * (9rem + var(--platine-ring-i) * 2.8rem));
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+  opacity: 0;
+  box-shadow: 0 0 18px rgba(220, 215, 255, 0.35);
+}
+
+.platine-lorus-reveal--badge .platine-lorus-reveal__star-ring {
+  animation: platine-lorus-ring 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--platine-ring-i) * 0.07s);
+}
+
+@keyframes platine-lorus-ring {
+  0% {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+}
+
+.platine-lorus-reveal__flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 42%, rgba(245, 242, 255, 0.75), transparent 58%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.platine-lorus-reveal__flash--hit {
+  animation: platine-lorus-flash 0.55s ease-out forwards;
+}
+
+@keyframes platine-lorus-flash {
+  0% {
+    opacity: 0;
+  }
+  22% {
+    opacity: 0.88;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.platine-lorus-reveal__core {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  text-align: center;
+  padding: 1rem;
+}
+
+.platine-lorus-reveal__hero-wrap {
+  width: min(68vw, 17rem);
+  height: min(68vw, 17rem);
+  display: grid;
+  place-items: center;
+}
+
+.platine-lorus-reveal__hero {
+  width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.45));
+}
+
+.platine-lorus-reveal__hero--pixel {
+  image-rendering: pixelated;
+}
+
+.platine-lorus-reveal--rise .platine-lorus-reveal__hero {
+  animation: platine-lorus-rise 0.98s cubic-bezier(0.28, 1.35, 0.42, 1) forwards;
+}
+
+@keyframes platine-lorus-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(45%) scale(0.55);
+    filter: drop-shadow(0 0 0 transparent) brightness(1.1);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(-6%) scale(1.06);
+    filter: drop-shadow(0 20px 36px rgba(200, 195, 255, 0.55)) brightness(1.2);
+  }
+  78% {
+    transform: translateY(3%) scale(0.97);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.45));
+  }
+}
+
+.platine-lorus-reveal__badge {
+  margin: 0.35rem 0 0;
+  font-size: clamp(0.95rem, 4vw, 1.25rem);
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  opacity: 0;
+  color: #1a2438;
+  background: linear-gradient(180deg, #f5f2ff, #dcd6ff);
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.28), 0 0 20px rgba(220, 215, 255, 0.55);
+}
+
+.platine-lorus-reveal--badge .platine-lorus-reveal__badge {
+  animation: platine-lorus-badge 0.5s cubic-bezier(0.34, 1.45, 0.52, 1) forwards;
+}
+
+@keyframes platine-lorus-badge {
+  0% {
+    opacity: 0;
+    transform: scale(1.8) translateY(-0.75rem);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.platine-lorus-reveal__name {
+  margin: 0;
+  font-size: clamp(1.25rem, 4.8vw, 1.6rem);
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+}
+
+.platine-lorus-reveal__classe {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.88);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0;
+}
+
+.platine-lorus-reveal--badge .platine-lorus-reveal__name,
+.platine-lorus-reveal--badge .platine-lorus-reveal__classe {
+  animation: platine-lorus-fade-up 0.42s ease-out 0.12s forwards;
+}
+
+@keyframes platine-lorus-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.platine-lorus-reveal--out {
+  opacity: 0;
+  transition: opacity 0.34s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .platine-lorus-reveal--on .platine-lorus-reveal__shimmer {
+    animation: none;
+  }
+
+  .platine-lorus-reveal--rise .platine-lorus-reveal__hero {
+    animation-duration: 0.35s;
+  }
+}

@@ -19,6 +19,18 @@ import { setEquippedCardId } from "./features/profile/profile-store.js";
 import { updateHubCurrencyDisplay } from "./features/hub/currency.js";
 import { playStarterRevealIfNeeded } from "./features/hub/starter-reveal.js";
 import { closeProfilePanel, refreshProfileUnlocks } from "./features/profile/profile.js";
+import {
+  initPlatineUi,
+  renderPlatine,
+  syncPlatineCreatorUi,
+} from "./features/hub/platine.js";
+import { initFriendsUi, onFriendsScreenOpen } from "./features/friends/friends.js";
+import {
+  applyLorusPanelTheme,
+  clearLorusPanelTheme,
+  getLorusRarity,
+  lorusRarityLabel,
+} from "./features/hub/lorus-rarity.js";
 
 const STORAGE_TUTO_STEP = "guerre_tuto_step";
 const STORAGE_INSTALLED = "guerre_installed";
@@ -34,6 +46,8 @@ const pseudoInput = document.getElementById("pseudo-input");
 const screenOnboarding = document.getElementById("screen-onboarding");
 const screenHome = document.getElementById("screen-home");
 const screenShop = document.getElementById("screen-shop");
+const screenPlatine = document.getElementById("screen-platine");
+const screenFriends = document.getElementById("screen-friends");
 const lorusPanel = document.getElementById("lorus-panel");
 const lorusGrid = document.getElementById("lorus-grid");
 const lorusEmpty = document.getElementById("lorus-empty");
@@ -59,7 +73,7 @@ const MSG = {
 const TUTO_STEP_PSEUDO_DONE = 1;
 const APP_WATCH_MS = 10_000;
 
-/** Écran principal actif : onboarding | home | shop */
+/** Écran principal actif : onboarding | home | shop | platine | friends */
 let activeScreen = "onboarding";
 
 function escapeHtml(text) {
@@ -106,6 +120,7 @@ function isTutoUnlocked() {
 
 function enterCreatorLobby() {
   enableCreatorMode();
+  syncPlatineCreatorUi();
   if (!getSavedPseudo()) {
     setSavedPseudo("Créateur");
     localStorage.setItem(STORAGE_TUTO_STEP, String(TUTO_STEP_PSEUDO_DONE));
@@ -120,6 +135,7 @@ function enterCreatorLobby() {
 
 function exitCreatorLobby() {
   disableCreatorMode();
+  syncPlatineCreatorUi();
   refreshProfileUnlocks();
   renderLorusGrid();
   refreshInstallUI();
@@ -172,10 +188,14 @@ function showScreen(which) {
   const onboarding = which === "onboarding";
   const home = which === "home";
   const shop = which === "shop";
+  const platine = which === "platine";
+  const friends = which === "friends";
 
   document.body.classList.toggle("mode-onboarding", onboarding);
   document.body.classList.toggle("mode-home", home);
   document.body.classList.toggle("mode-shop", shop);
+  document.body.classList.toggle("mode-platine", platine);
+  document.body.classList.toggle("mode-friends", friends);
 
   screenOnboarding.classList.toggle("hidden", !onboarding);
   screenOnboarding.hidden = !onboarding;
@@ -183,6 +203,10 @@ function showScreen(which) {
   screenHome.hidden = !home;
   screenShop?.classList.toggle("hidden", !shop);
   if (screenShop) screenShop.hidden = !shop;
+  screenPlatine?.classList.toggle("hidden", !platine);
+  if (screenPlatine) screenPlatine.hidden = !platine;
+  screenFriends?.classList.toggle("hidden", !friends);
+  if (screenFriends) screenFriends.hidden = !friends;
 }
 
 function showShopScreen() {
@@ -198,6 +222,46 @@ function showShopScreen() {
 }
 
 function showHomeFromShop() {
+  showScreen("home");
+  tryLockLandscape();
+}
+
+function showPlatineScreen() {
+  const lorusPanel = document.getElementById("lorus-panel");
+  if (lorusPanel && !lorusPanel.hidden) {
+    lorusPanel.classList.add("hidden");
+    lorusPanel.hidden = true;
+  }
+  closeProfilePanel();
+  showScreen("platine");
+  tryLockLandscape();
+  syncPlatineCreatorUi();
+  renderPlatine();
+}
+
+function showHomeFromPlatine() {
+  showScreen("home");
+  tryLockLandscape();
+}
+
+function showFriendsScreen() {
+  const lorusPanel = document.getElementById("lorus-panel");
+  if (lorusPanel && !lorusPanel.hidden) {
+    lorusPanel.classList.add("hidden");
+    lorusPanel.hidden = true;
+  }
+  closeProfilePanel();
+  showScreen("friends");
+  tryLockLandscape();
+  onFriendsScreenOpen();
+}
+
+function showHomeFromFriends() {
+  const panel = document.getElementById("friends-add-panel");
+  if (panel && !panel.hidden) {
+    panel.classList.add("hidden");
+    panel.hidden = true;
+  }
   showScreen("home");
   tryLockLandscape();
 }
@@ -327,6 +391,9 @@ function renderLorusGrid() {
     label.textContent = unlocked ? name : "???";
 
     if (ch.classe) li.dataset.classe = ch.classe;
+    const rarity = ch.rarity || (catalogIndex >= 0 ? catalogPersos[catalogIndex]?.rarity : null);
+    const resolvedRarity = getLorusRarity({ rarity });
+    if (rarity) li.dataset.lorusRarity = rarity;
 
     if (!unlocked) {
       const lock = document.createElement("span");
@@ -335,17 +402,36 @@ function renderLorusGrid() {
       lock.textContent = "🔒";
       li.append(img, lock, label);
     } else {
-      const runReveal = () => {
+      const parts = [img, label];
+      if (resolvedRarity) {
+        const badge = document.createElement("span");
+        badge.className = "lorus-card-rarity";
+        badge.dataset.lorusRarity = resolvedRarity;
+        badge.textContent = lorusRarityLabel({ rarity: resolvedRarity });
+        parts.splice(1, 0, badge);
+      }
+      const runReveal = async () => {
         if (isMegaAnimPlaying()) return;
         const hubFelt = document.querySelector(".hub-felt");
         if (!hubFelt) return;
+
+        const sheet = lorusPanel.querySelector(".lorus-sheet");
+        applyLorusPanelTheme(lorusPanel, sheet, resolvedRarity);
+
+        const dwell =
+          resolvedRarity === "megalorus" ? 520 : resolvedRarity === "platinelorus" ? 420 : 380;
+        await new Promise((r) => setTimeout(r, dwell));
 
         playMegaCharReveal({
           id: ch.id,
           classe: ch.classe,
           name: ch.name,
           hubFelt,
-          onCloseLorus: closeLorusPanel,
+          rarity: resolvedRarity,
+          onCloseLorus: () => {
+            clearLorusPanelTheme(lorusPanel, sheet);
+            closeLorusPanel();
+          },
           fullSrc: ch.src,
         });
       };
@@ -358,7 +444,7 @@ function renderLorusGrid() {
         }
       });
 
-      li.append(img, label);
+      li.append(...parts);
     }
 
     lorusGrid.append(li);
@@ -374,6 +460,8 @@ async function openLorusPanel() {
 }
 
 function closeLorusPanel() {
+  const sheet = lorusPanel.querySelector(".lorus-sheet");
+  clearLorusPanelTheme(lorusPanel, sheet);
   lorusPanel.classList.add("hidden");
   lorusPanel.hidden = true;
   document.getElementById("btn-lorus")?.focus();
@@ -467,7 +555,7 @@ function refreshInstallUI(opts) {
   }
 
   if (isTutoComplete()) {
-    if (activeScreen === "shop") return;
+    if (activeScreen === "shop" || activeScreen === "platine" || activeScreen === "friends") return;
     if (activeScreen === "home") {
       updateHomeProfile();
       return;
@@ -528,7 +616,7 @@ document.querySelectorAll("[data-lorus-filter]").forEach((btn) => {
 });
 
 document.getElementById("btn-amis")?.addEventListener("click", () => {
-  /* amis : à venir */
+  showFriendsScreen();
 });
 
 window.addEventListener("beforeinstallprompt", (e) => {
@@ -597,6 +685,14 @@ window.addEventListener("load", async () => {
     onLorusRefresh: () => renderLorusGrid(),
     onProfileUnlockRefresh: () => refreshProfileUnlocks(),
   });
+  initPlatineUi({
+    onLorusRefresh: () => renderLorusGrid(),
+  });
+  initFriendsUi();
+  document.getElementById("btn-platine")?.addEventListener("click", showPlatineScreen);
+  document.getElementById("friends-back")?.addEventListener("click", showHomeFromFriends);
+  document.getElementById("platine-back")?.addEventListener("click", showHomeFromPlatine);
+  syncPlatineCreatorUi();
   initCreatorCodeUi({
     onEnter: enterCreatorLobby,
     onExit: exitCreatorLobby,
